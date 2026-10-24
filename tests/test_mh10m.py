@@ -446,5 +446,35 @@ check(c.pix == [] and c.grmod == 0 and c.grfnt == 20, 'the end: screen cleared, 
 st, c = run_keys(S.press('MRC'), mem=36)
 check(st[-1] == ('36.', 1), 'the memory from MHMEM at the next run: %s' % (st[-1],))
 
+# ---------------------------------------------------------------- 5. standby (LBL :WAKE:)
+def standby(gap):
+    """12+ keyed, then a key wait with no key during which the clock moves gap seconds, then 3 = 0FF.
+    Returns the simulator (ended or not) and the key codes not used."""
+    c = c47sim.load([S.PROG])
+    c.s = [D(11), D(12), D(13), D(14)]; c.lastx = D(99); c.pix = []; c.frames = []; c.clock = D('2461338.0')
+    script = S.press('12+') + [None] + S.press('3=') + [S.OFF]
+
+    def count(op, x):
+        if op == 'KEY?':
+            k = script.pop(0) if script else S.OFF
+            if k is None:                          # no key: the calculator slept gap seconds in the PAUSE
+                c.keys = []; c.keyskip = True; c.clock += D(gap) / D(86400)
+            else:
+                c.keys = [k]; c.keyskip = False
+    c.count = count
+    try:
+        c.run('MH10M', maxsteps=10 ** 8)
+    except StopIteration:
+        pass
+    return c, script
+
+
+c, left = standby(600)
+check(left == S.press('3=') + [S.OFF], 'standby: the key wait after 10 min ends the program (keys left %s)' % left)
+check(c.s == [D(12), D(11), D(12), D(13)] and c.lastx == D(99), 'standby: the stack back, the value in X: %s' % c.s)
+check(c.pix == [] and c.grmod == 0, 'standby: the screen cleared')
+c, left = standby(5)
+check(left == [] and c.s[0] == D(15), 'no standby (5 s): it waits on, 12 + 3 = 15: %s' % c.s)
+
 print('ALL OK' if not FAIL else '%d FAILED' % len(FAIL))
 sys.exit(1 if FAIL else 0)
