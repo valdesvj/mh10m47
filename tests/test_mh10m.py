@@ -49,7 +49,7 @@ def run_keys(keys, **kw):
             states.append((shown(c), int(c.reg.get('36', D(0)))))
     import c47sim
     c = c47sim.load([S.PROG])
-    c.s = [D(0)] * 4; c.pix = []; c.keys = list(keys); c.steps = 0
+    c.s = [D(0)] * 4; c.pix = []; c.keys = list(keys); c.steps = 0; c.clock = D('2461338.0')
     c.frames = Grab(c)
     for k, v in kw.items():
         c.reg[{'tax': 'MHTAX', 'mem': 'MHMEM'}[k]] = D(str(v))
@@ -433,7 +433,7 @@ check(keypad(shots3[-1]) == keypad(shots3[-2]), 'the same key twice: it stays in
 # ---------------------------------------------------------------- 4. the end
 import c47sim
 c = c47sim.load([S.PROG])
-c.s = [D(11), D(12), D(13), D(14)]; c.lastx = D(99); c.pix = []; c.frames = []
+c.s = [D(11), D(12), D(13), D(14)]; c.lastx = D(99); c.pix = []; c.frames = []; c.clock = D('2461338.0')
 c.keys = S.press('12*3=M+') + [S.OFF]
 c.reg['77'] = D(5); c.reg['19'] = D(7)
 c.run('MH10M', maxsteps=10 ** 8)
