@@ -1692,13 +1692,13 @@ CLLCD
 GRMOD
 10                              ; ==== STATIC (written by the build: the title, the LCD frame, the keys and their names)
 GRFNT
-"CASIO"
+"DESK CALCULATOR"
 232
 6
 ATEXT Z
-"MH-10M   10 DIGITS"
+"10 DIGITS"
 232
-286
+340
 ATEXT Z
 0
 GRMOD

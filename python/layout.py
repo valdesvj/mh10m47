@@ -52,7 +52,7 @@ def gap_x(k):
 LCD = (4, 395, 144, 231)        # x0, x1, row0, row1 of the frame
 IND_ROW = 210                   # the indicators (GRFNT 21, the glyph box 20 rows)
 TITLE_ROW = 232                 # the title (GRFNT 10)
-TITLE = [('CASIO', 6), ('MH-10M   10 DIGITS', None)]
+TITLE = [('DESK CALCULATOR', 6), ('10 DIGITS', None)]   # a plain title: no maker's name on the screen
 
 # ---- the indicators: bit, text, x ----
 # each at its own place: an indicator that is off clears its own pixels (GRMOD 2), so none may overlap

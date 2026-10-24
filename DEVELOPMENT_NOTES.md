@@ -51,6 +51,11 @@
   build/MH10M.txt.
 - docs/MH10M_tour.gif (tools/make_gif.py): a session key by key.
 
+## Oct 24, 2026 - a plain title (branch claude/plain-title)
+
+- The screen's title was the maker's name and the model; now "DESK CALCULATOR ... 10 DIGITS" (python/layout.py
+  TITLE): no maker's name or logo drawn on the screen. docs/ pictures made again.
+
 ## To do
 
 1. Run on Victor's C47 (convert build/MH10M.txt with rejig); check the KEY? codes with KEYTEST (KT3).

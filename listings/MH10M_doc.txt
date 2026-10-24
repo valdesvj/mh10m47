@@ -1762,13 +1762,13 @@
       ; ==== STATIC (written by the build: the title, the LCD frame, the keys and their names)
 1625  10
 1626  GRFNT
-1627  "CASIO"
+1627  "DESK CALCULATOR"
 1628  232
 1629  6
 1630  ATEXT Z
-1631  "MH-10M   10 DIGITS"
+1631  "10 DIGITS"
 1632  232
-1633  286
+1633  340
 1634  ATEXT Z
 1635  0
 1636  GRMOD
