@@ -1,0 +1,31 @@
+MH-10M 47 - the Casio MH-10M desk calculator for the C47
+Copyright (C) 2026 Victor Valdes <valdes.vj@gmail.com>
+
+This program is free software: you can redistribute it and/or modify it under the terms of
+the GNU General Public License as published by the Free Software Foundation, either version 3
+of the License, or (at your option) any later version.
+
+This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;
+without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+See the GNU General Public License for more details: the LICENSE file in this folder
+(the same as Almanac 47's), or https://www.gnu.org/licenses/.
+
+This covers everything in this repository: the C47 calculator program (programs/,
+programs_rem/, listings/, build/), the PC tools (python/, tools/), the tests and the
+documentation - with these exceptions and sources:
+  - python/stdfont.py and python/tinyfont.py: glyph data from the C43/C47 firmware's
+    standardFont and tinyFont, (c) the C43/C47 authors, GPL-3.0.
+  - python/c47sim.py comes from Almanac 47 (same author, GPL-3.0).
+  - The Casio MH-10M's keypad and display are drawn from its look; no Casio code or data is used.
+
+Written with the help of AI (Claude by Anthropic, see AI_ASSISTANCE.md).
+I used AI as a cooperative research and drafting tool, but I reviewed, validated, and
+checked every result, and I take full responsibility for this project, its correctness,
+and any mistakes in it.
+
+Casio and MH-10M are trademarks of Casio Computer Co., Ltd. SwissMicros, C47, R47 and DM42 are
+trademarks of their owners.
+This project is not affiliated with or endorsed by them.
+
+NO WARRANTY: an emulation of the Casio's rules as described in README.md, not the Casio itself. Check
+important figures (prices, taxes, margins) another way.
