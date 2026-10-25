@@ -8,7 +8,6 @@
       ; COST, SELL, MAR (margin on the selling price: two give the third); TAX+ and TAX- with the tax rate
       ; (pressed twice: the tax amount); RATE SET; E: overflow (the display shows the result / 10^10) or
       ; division by 0, only C or AC go on.
-      ; After a standby (more than 30 s between two passes of the key wait) the key that wakes it ends the program.
       ; C47 keys: the digits, . and + - x / as they are; ENTER =; +/- +/-; <- (backspace) the Casio's >;
       ; F1-F6 the Casio's top row COST SELL MAR % TAX- TAX+; the second row of the C47 (under the soft keys)
       ; MRC M- M+ C AC RATE-SET; x<>y OFF (the end).
@@ -28,8 +27,7 @@
       ; with a digit (from the right), R50-R59 the digit
       ; shown in each cell (10 blank), R60-R69 the mark shown after each cell (1 point, 2 thousands),
       ; R70-R72 the glyph's words (left, middle, right columns), R73 a counter, R74 work, R75-R78 work,
-      ; R79 10^10, R80 the point's word, R81 the thousands mark's word, R82 the clock's JD at the last key wait,
-      ; R83 1 / 0 wait on / end (the standby check), R84 the AGRAPH word of LBL :RUN:,
+      ; R79 10^10, R80 the point's word, R81 the thousands mark's word, R84 the AGRAPH word of LBL :RUN:,
       ; R85 the keys used ("/11/12/.../"), R86 the value of R45 and R46, R87-R89 the key shown inverted (x, row, height 1 or 2 key rows;
       ; 0 none), R90 23 ones, R91 52 ones (the inside of a key).
       ; Indicators (R35, R36): 1 M, 2 minus, 4 E, 8 COST, 16 SELL, 32 MAR, 64 TAX+, 128 TAX-, 256 TAX,
@@ -49,2369 +47,2327 @@
    3  STOS R.00
    4  LASTx
    5  STO R.08
-   6  XEQ :INIT:    (98)
+   6  XEQ :INIT:    (97)
       ; ---- keys: x<>y (42) the end; a key of R85 runs its label (XEQ IND 33); the others ignored ----
    7  DO    (01)
-        ; wait for a key: PAUSE 50, KEY? 33 (true: no key yet), as Elements 47; with no key LBL :WAKE: (the
-        ; standby check) sets R83 = 1 to wait on, 0 to end (R33 = 42, as x<>y); a key: R83 stays 0
+        ; wait for a key: PAUSE 50, KEY? 33 (true: no key yet), as Elements 47
    8    DO    (02)
-   9      0
-  10      STO 83
-  11      PAUSE 50
-  12      KEY? 33
-  13      XEQ :WAKE:    (17)
-  14      RCL 83
-  15      X≠0?
-  16    WHILE    (02)
-  17    ENDDO    (02)
-  18    RCL 33
-  19    42
-  20    X≠Y?
-  21  WHILE    (01)
+   9      PAUSE 50
+  10      KEY? 33
+  11    WHILE    (02)
+  12    ENDDO    (02)
+  13    RCL 33
+  14    42
+  15    X≠Y?
+  16  WHILE    (01)
         ; "/k/" in the keys used R85 (αPOS: -1 when not there)
-  22    "/"
-  23    STO 75
-  24    RCL 33
-  25    αIP 75
-  26    "/"
-  27    x→α 75
-  28    RCL 75
-  29    αPOS 85
-  30    X≥0?
-  31    XEQ :KEY:    (18)
-  32  ENDDO    (01)
+  17    "/"
+  18    STO 75
+  19    RCL 33
+  20    αIP 75
+  21    "/"
+  22    x→α 75
+  23    RCL 75
+  24    αPOS 85
+  25    X≥0?
+  26    XEQ :KEY:    (17)
+  27  ENDDO    (01)
       ; ---- x<>y: the end: the value in R.09, R20-R91 cleared, GRMOD 0, GRFNT 20, the screen; the user's
       ; stack and LASTx back, the value in X ----
-  33  RCL 20
-  34  STO R.09
-  35  20.72
-  36  R-CLR
-  37  0
-  38  GRMOD
-  39  20
-  40  GRFNT
-  41  CLLCD
-  42  RCL R.08
-  43  STO L
-  44  RCLS R.00
-  45  RCL R.09
-  46  RTN
-      ; ---- LBL :WAKE: the standby check: the calculator's clock (JD, R82 the last pass's); more than 30 s since
-      ; the last pass: the calculator was in standby, and the key that woke it ends the program cleanly (R33 = 42),
-      ; so it is left in its normal state (a program left waiting went back to standby at each press). R83 = 1 -
-      ; (IP(gap / 30 s) not 0) ----
-  47  LBL :WAKE:    (17)
-  48  Date→ⅅ
-  49  Time→ℸ
-  50  ⅅℸ→J
-  51  RCL 82
-  52  X<>Y
-  53  STO 82
-  54  X<>Y
-  55  -
-  56  86400
-  57  ×
-  58  30
-  59  ÷
-  60  IP
-  61  X≠0?
-  62  1
-  63  1
-  64  X<>Y
-  65  -
-  66  STO 83
-  67  1
-  68  RCL 83
-  69  -
-  70  42
-  71  ×
-  72  STO 33
-  73  RTN
+  28  RCL 20
+  29  STO R.09
+  30  20.72
+  31  R-CLR
+  32  0
+  33  GRMOD
+  34  20
+  35  GRFNT
+  36  CLLCD
+  37  RCL R.08
+  38  STO L
+  39  RCLS R.00
+  40  RCL R.09
+  41  RTN
       ; LBL :KEY: the key R33: no indicator of a key (R35), its label, then it is the key before (R34)
-  74  LBL :KEY:    (18)
-  75  0
-  76  STO 35
-  77  XEQ IND 33
-  78  RCL 33
-  79  STO 34
-  80  RTN
+  42  LBL :KEY:    (17)
+  43  0
+  44  STO 35
+  45  XEQ IND 33
+  46  RCL 33
+  47  STO 34
+  48  RTN
       ; ==== GLYPHS (written by tools/build_mh10m.py: LBL 00-10, the three words of each digit, SINT)
-  81  LBL 00
-  82  562941497702400
-  83  SINT
-  84  STO 70
-  85  16888498602640320
-  86  SINT
-  87  STO 71
-  88  562941497702400
-  89  SINT
-  90  STO 72
-  91  RTN
-  92  LBL 01
-  93  0
-  94  SINT
-  95  STO 70
-  96  0
-  97  SINT
-  98  STO 71
-  99  562941497702400
- 100  SINT
- 101  STO 72
- 102  RTN
- 103  LBL 02
- 104  134215680
- 105  SINT
- 106  STO 70
- 107  16888502629172160
- 108  SINT
- 109  STO 71
- 110  562941363486720
- 111  SINT
- 112  STO 72
- 113  RTN
- 114  LBL 03
- 115  0
- 116  SINT
- 117  STO 70
- 118  16888502629172160
- 119  SINT
- 120  STO 71
- 121  562941497702400
- 122  SINT
- 123  STO 72
- 124  RTN
- 125  LBL 04
- 126  562941363486720
- 127  SINT
- 128  STO 70
- 129  4026531840
- 130  SINT
- 131  STO 71
- 132  562941497702400
- 133  SINT
- 134  STO 72
- 135  RTN
- 136  LBL 05
- 137  562941363486720
- 138  SINT
- 139  STO 70
- 140  16888502629172160
- 141  SINT
- 142  STO 71
- 143  134215680
- 144  SINT
- 145  STO 72
- 146  RTN
- 147  LBL 06
- 148  562941497702400
- 149  SINT
- 150  STO 70
- 151  16888502629172160
- 152  SINT
- 153  STO 71
- 154  134215680
- 155  SINT
- 156  STO 72
- 157  RTN
- 158  LBL 07
- 159  562941363486720
- 160  SINT
- 161  STO 70
- 162  16888498602639360
- 163  SINT
- 164  STO 71
- 165  562941497702400
- 166  SINT
- 167  STO 72
- 168  RTN
- 169  LBL 08
- 170  562941497702400
- 171  SINT
- 172  STO 70
- 173  16888502629172160
- 174  SINT
- 175  STO 71
- 176  562941497702400
- 177  SINT
- 178  STO 72
- 179  RTN
- 180  LBL 09
- 181  562941363486720
- 182  SINT
- 183  STO 70
- 184  16888502629172160
- 185  SINT
- 186  STO 71
- 187  562941497702400
- 188  SINT
- 189  STO 72
- 190  RTN
- 191  LBL 10
- 192  0
- 193  SINT
- 194  STO 70
- 195  0
- 196  SINT
- 197  STO 71
- 198  0
- 199  SINT
- 200  STO 72
- 201  RTN
+  49  LBL 00
+  50  562941497702400
+  51  SINT
+  52  STO 70
+  53  16888498602640320
+  54  SINT
+  55  STO 71
+  56  562941497702400
+  57  SINT
+  58  STO 72
+  59  RTN
+  60  LBL 01
+  61  0
+  62  SINT
+  63  STO 70
+  64  0
+  65  SINT
+  66  STO 71
+  67  562941497702400
+  68  SINT
+  69  STO 72
+  70  RTN
+  71  LBL 02
+  72  134215680
+  73  SINT
+  74  STO 70
+  75  16888502629172160
+  76  SINT
+  77  STO 71
+  78  562941363486720
+  79  SINT
+  80  STO 72
+  81  RTN
+  82  LBL 03
+  83  0
+  84  SINT
+  85  STO 70
+  86  16888502629172160
+  87  SINT
+  88  STO 71
+  89  562941497702400
+  90  SINT
+  91  STO 72
+  92  RTN
+  93  LBL 04
+  94  562941363486720
+  95  SINT
+  96  STO 70
+  97  4026531840
+  98  SINT
+  99  STO 71
+ 100  562941497702400
+ 101  SINT
+ 102  STO 72
+ 103  RTN
+ 104  LBL 05
+ 105  562941363486720
+ 106  SINT
+ 107  STO 70
+ 108  16888502629172160
+ 109  SINT
+ 110  STO 71
+ 111  134215680
+ 112  SINT
+ 113  STO 72
+ 114  RTN
+ 115  LBL 06
+ 116  562941497702400
+ 117  SINT
+ 118  STO 70
+ 119  16888502629172160
+ 120  SINT
+ 121  STO 71
+ 122  134215680
+ 123  SINT
+ 124  STO 72
+ 125  RTN
+ 126  LBL 07
+ 127  562941363486720
+ 128  SINT
+ 129  STO 70
+ 130  16888498602639360
+ 131  SINT
+ 132  STO 71
+ 133  562941497702400
+ 134  SINT
+ 135  STO 72
+ 136  RTN
+ 137  LBL 08
+ 138  562941497702400
+ 139  SINT
+ 140  STO 70
+ 141  16888502629172160
+ 142  SINT
+ 143  STO 71
+ 144  562941497702400
+ 145  SINT
+ 146  STO 72
+ 147  RTN
+ 148  LBL 09
+ 149  562941363486720
+ 150  SINT
+ 151  STO 70
+ 152  16888502629172160
+ 153  SINT
+ 154  STO 71
+ 155  562941497702400
+ 156  SINT
+ 157  STO 72
+ 158  RTN
+ 159  LBL 10
+ 160  0
+ 161  SINT
+ 162  STO 70
+ 163  0
+ 164  SINT
+ 165  STO 71
+ 166  0
+ 167  SINT
+ 168  STO 72
+ 169  RTN
       ; ======== the keys: each shows its key inverted (column, row, height: XEQ :HL:), then its work ========
       ; ---- the digits: 7 8 9 / 4 5 6 / 1 2 3 / 0 (KEY? 52-54, 62-64, 72-74, 82) ----
- 202  LBL 52
- 203  1
- 204  3
- 205  1
- 206  XEQ :HL:    (84)
- 207  7
- 208  GTO :DIG:    (19)
- 209  LBL 53
- 210  2
- 211  3
- 212  1
- 213  XEQ :HL:    (84)
- 214  8
- 215  GTO :DIG:    (19)
- 216  LBL 54
- 217  3
- 218  3
- 219  1
- 220  XEQ :HL:    (84)
- 221  9
- 222  GTO :DIG:    (19)
- 223  LBL 62
- 224  1
- 225  2
- 226  1
- 227  XEQ :HL:    (84)
- 228  4
- 229  GTO :DIG:    (19)
- 230  LBL 63
- 231  2
- 232  2
- 233  1
- 234  XEQ :HL:    (84)
- 235  5
- 236  GTO :DIG:    (19)
- 237  LBL 64
- 238  3
- 239  2
- 240  1
- 241  XEQ :HL:    (84)
- 242  6
- 243  GTO :DIG:    (19)
- 244  LBL 72
- 245  1
- 246  1
- 247  1
- 248  XEQ :HL:    (84)
- 249  1
- 250  GTO :DIG:    (19)
- 251  LBL 73
- 252  2
- 253  1
- 254  1
- 255  XEQ :HL:    (84)
- 256  2
- 257  GTO :DIG:    (19)
- 258  LBL 74
- 259  3
- 260  1
- 261  1
- 262  XEQ :HL:    (84)
- 263  3
- 264  GTO :DIG:    (19)
- 265  LBL 82
- 266  1
- 267  0
- 268  1
- 269  XEQ :HL:    (84)
- 270  0
- 271  GTO :DIG:    (19)
+ 170  LBL 52
+ 171  1
+ 172  3
+ 173  1
+ 174  XEQ :HL:    (81)
+ 175  7
+ 176  GTO :DIG:    (18)
+ 177  LBL 53
+ 178  2
+ 179  3
+ 180  1
+ 181  XEQ :HL:    (81)
+ 182  8
+ 183  GTO :DIG:    (18)
+ 184  LBL 54
+ 185  3
+ 186  3
+ 187  1
+ 188  XEQ :HL:    (81)
+ 189  9
+ 190  GTO :DIG:    (18)
+ 191  LBL 62
+ 192  1
+ 193  2
+ 194  1
+ 195  XEQ :HL:    (81)
+ 196  4
+ 197  GTO :DIG:    (18)
+ 198  LBL 63
+ 199  2
+ 200  2
+ 201  1
+ 202  XEQ :HL:    (81)
+ 203  5
+ 204  GTO :DIG:    (18)
+ 205  LBL 64
+ 206  3
+ 207  2
+ 208  1
+ 209  XEQ :HL:    (81)
+ 210  6
+ 211  GTO :DIG:    (18)
+ 212  LBL 72
+ 213  1
+ 214  1
+ 215  1
+ 216  XEQ :HL:    (81)
+ 217  1
+ 218  GTO :DIG:    (18)
+ 219  LBL 73
+ 220  2
+ 221  1
+ 222  1
+ 223  XEQ :HL:    (81)
+ 224  2
+ 225  GTO :DIG:    (18)
+ 226  LBL 74
+ 227  3
+ 228  1
+ 229  1
+ 230  XEQ :HL:    (81)
+ 231  3
+ 232  GTO :DIG:    (18)
+ 233  LBL 82
+ 234  1
+ 235  0
+ 236  1
+ 237  XEQ :HL:    (81)
+ 238  0
+ 239  GTO :DIG:    (18)
       ; LBL :DIG: the digit X keyed: a new number (LBL :NEWE:) unless one is being keyed; at most 10 digits;
       ; N = 10N + d; after the point one decimal more (LBL :DECD:), before it one digit more unless N is 0
- 272  LBL :DIG:    (19)
- 273  STO 75
- 274  RCL 30
- 275  X≠0?
- 276  RTN
- 277  RCL 25
- 278  X=0?
- 279  XEQ :NEWE:    (28)
- 280  10
- 281  RCL 27
- 282  X≥Y?
- 283  RTN
- 284  RCL 26
- 285  10
- 286  ×
- 287  RCL 75
- 288  +
- 289  STO 26
- 290  RCL 28
- 291  X≥0?
- 292  GTO :DECD:    (20)
+ 240  LBL :DIG:    (18)
+ 241  STO 75
+ 242  RCL 30
+ 243  X≠0?
+ 244  RTN
+ 245  RCL 25
+ 246  X=0?
+ 247  XEQ :NEWE:    (27)
+ 248  10
+ 249  RCL 27
+ 250  X≥Y?
+ 251  RTN
+ 252  RCL 26
+ 253  10
+ 254  ×
+ 255  RCL 75
+ 256  +
+ 257  STO 26
+ 258  RCL 28
+ 259  X≥0?
+ 260  GTO :DECD:    (19)
       ; N not 0: one digit more (X≠0? 1: the 1 added, else N = 0 added)
- 293  RCL 26
- 294  X≠0?
- 295  1
- 296  STO+ 27
- 297  GTO :EVAL:    (27)
- 298  LBL :DECD:    (20)
- 299  1
- 300  STO+ 28
- 301  STO+ 27
- 302  RCL 44
- 303  10
- 304  ×
- 305  STO 44
+ 261  RCL 26
+ 262  X≠0?
+ 263  1
+ 264  STO+ 27
+ 265  GTO :EVAL:    (20)
+ 266  LBL :DECD:    (19)
+ 267  1
+ 268  STO+ 28
+ 269  STO+ 27
+ 270  RCL 44
+ 271  10
+ 272  ×
+ 273  STO 44
       ; LBL :EVAL: X = N / 10^decimals, negative when R29 = 1 (x (1 - 2 R29)); the display
- 306  LBL :EVAL:    (27)
- 307  RCL 26
- 308  RCL 44
- 309  ÷
- 310  1
- 311  RCL 29
- 312  2
- 313  ×
- 314  -
- 315  ×
- 316  STO 20
- 317  GTO :SHOW:    (67)
+ 274  LBL :EVAL:    (20)
+ 275  RCL 26
+ 276  RCL 44
+ 277  ÷
+ 278  1
+ 279  RCL 29
+ 280  2
+ 281  ×
+ 282  -
+ 283  ×
+ 284  STO 20
+ 285  GTO :SHOW:    (66)
       ; LBL :NEWE: a new number: N 0, no digit, no point, positive, 10^0, keyed, given
- 318  LBL :NEWE:    (28)
- 319  0
- 320  STO 26
- 321  STO 27
- 322  STO 29
- 323  -1
- 324  STO 28
- 325  1
- 326  STO 44
- 327  STO 25
- 328  STO 43
- 329  RTN
+ 286  LBL :NEWE:    (27)
+ 287  0
+ 288  STO 26
+ 289  STO 27
+ 290  STO 29
+ 291  -1
+ 292  STO 28
+ 293  1
+ 294  STO 44
+ 295  STO 25
+ 296  STO 43
+ 297  RTN
       ; ---- . (83): the point (once); 0. counts one digit ----
- 330  LBL 83
- 331  2
- 332  0
- 333  1
- 334  XEQ :HL:    (84)
- 335  RCL 30
- 336  X≠0?
- 337  RTN
- 338  RCL 25
- 339  X=0?
- 340  XEQ :NEWE:    (28)
- 341  RCL 28
- 342  X≥0?
- 343  RTN
- 344  0
- 345  STO 28
+ 298  LBL 83
+ 299  2
+ 300  0
+ 301  1
+ 302  XEQ :HL:    (81)
+ 303  RCL 30
+ 304  X≠0?
+ 305  RTN
+ 306  RCL 25
+ 307  X=0?
+ 308  XEQ :NEWE:    (27)
+ 309  RCL 28
+ 310  X≥0?
+ 311  RTN
+ 312  0
+ 313  STO 28
       ; the digits at least 1 (X<Y? X<>Y: the larger of R27 and 1)
- 346  1
- 347  RCL 27
- 348  X<Y?
- 349  X<>Y
- 350  STO 27
- 351  GTO :EVAL:    (27)
+ 314  1
+ 315  RCL 27
+ 316  X<Y?
+ 317  X<>Y
+ 318  STO 27
+ 319  GTO :EVAL:    (20)
       ; ---- <- (45): the Casio's > key, the last digit keyed off: a decimal (LBL :BKD:), the point
       ; (LBL :BKP:) or a digit before the point ----
- 352  LBL 45
- 353  0
- 354  2
- 355  1
- 356  XEQ :HL:    (84)
- 357  RCL 30
- 358  X≠0?
- 359  RTN
- 360  RCL 25
- 361  X=0?
- 362  RTN
- 363  RCL 28
- 364  X>0?
- 365  GTO :BKD:    (29)
- 366  RCL 28
- 367  X=0?
- 368  GTO :BKP:    (30)
- 369  RCL 26
- 370  10
- 371  ÷
- 372  IP
- 373  STO 26
- 374  RCL 27
- 375  X≠0?
- 376  1
- 377  STO- 27
- 378  GTO :EVAL:    (27)
- 379  LBL :BKD:    (29)
- 380  RCL 26
- 381  10
- 382  ÷
- 383  IP
- 384  STO 26
- 385  1
- 386  STO- 28
- 387  STO- 27
- 388  RCL 44
- 389  10
- 390  ÷
- 391  STO 44
- 392  GTO :EVAL:    (27)
+ 320  LBL 45
+ 321  0
+ 322  2
+ 323  1
+ 324  XEQ :HL:    (81)
+ 325  RCL 30
+ 326  X≠0?
+ 327  RTN
+ 328  RCL 25
+ 329  X=0?
+ 330  RTN
+ 331  RCL 28
+ 332  X>0?
+ 333  GTO :BKD:    (28)
+ 334  RCL 28
+ 335  X=0?
+ 336  GTO :BKP:    (29)
+ 337  RCL 26
+ 338  10
+ 339  ÷
+ 340  IP
+ 341  STO 26
+ 342  RCL 27
+ 343  X≠0?
+ 344  1
+ 345  STO- 27
+ 346  GTO :EVAL:    (20)
+ 347  LBL :BKD:    (28)
+ 348  RCL 26
+ 349  10
+ 350  ÷
+ 351  IP
+ 352  STO 26
+ 353  1
+ 354  STO- 28
+ 355  STO- 27
+ 356  RCL 44
+ 357  10
+ 358  ÷
+ 359  STO 44
+ 360  GTO :EVAL:    (20)
       ; the point off; when N is 0 no digit is left (X=0? STO 27: R27 = 0)
- 393  LBL :BKP:    (30)
- 394  -1
- 395  STO 28
- 396  RCL 26
- 397  X=0?
- 398  STO 27
- 399  GTO :EVAL:    (27)
+ 361  LBL :BKP:    (29)
+ 362  -1
+ 363  STO 28
+ 364  RCL 26
+ 365  X=0?
+ 366  STO 27
+ 367  GTO :EVAL:    (20)
       ; ---- +/- (43): the sign of X (and of the number being keyed: R29) ----
- 400  LBL 43
- 401  0
- 402  3
- 403  1
- 404  XEQ :HL:    (84)
- 405  RCL 30
- 406  X≠0?
- 407  RTN
- 408  RCL 20
- 409  CHS
- 410  STO 20
- 411  1
- 412  RCL 29
- 413  -
- 414  STO 29
- 415  GTO :SHOW:    (67)
+ 368  LBL 43
+ 369  0
+ 370  3
+ 371  1
+ 372  XEQ :HL:    (81)
+ 373  RCL 30
+ 374  X≠0?
+ 375  RTN
+ 376  RCL 20
+ 377  CHS
+ 378  STO 20
+ 379  1
+ 380  RCL 29
+ 381  -
+ 382  STO 29
+ 383  GTO :SHOW:    (66)
       ; ---- + - x / (85 75 65 55): the operation 86-89 (LBL :OPK:) ----
- 416  LBL 85
- 417  4
- 418  0
- 419  2
- 420  XEQ :HL:    (84)
- 421  86
- 422  GTO :OPK:    (31)
- 423  LBL 75
- 424  4
- 425  2
- 426  1
- 427  XEQ :HL:    (84)
- 428  87
- 429  GTO :OPK:    (31)
- 430  LBL 65
- 431  4
- 432  3
- 433  1
- 434  XEQ :HL:    (84)
- 435  88
- 436  GTO :OPK:    (31)
- 437  LBL 55
- 438  5
- 439  3
- 440  1
- 441  XEQ :HL:    (84)
- 442  89
- 443  GTO :OPK:    (31)
+ 384  LBL 85
+ 385  4
+ 386  0
+ 387  2
+ 388  XEQ :HL:    (81)
+ 389  86
+ 390  GTO :OPK:    (30)
+ 391  LBL 75
+ 392  4
+ 393  2
+ 394  1
+ 395  XEQ :HL:    (81)
+ 396  87
+ 397  GTO :OPK:    (30)
+ 398  LBL 65
+ 399  4
+ 400  3
+ 401  1
+ 402  XEQ :HL:    (81)
+ 403  88
+ 404  GTO :OPK:    (30)
+ 405  LBL 55
+ 406  5
+ 407  3
+ 408  1
+ 409  XEQ :HL:    (81)
+ 410  89
+ 411  GTO :OPK:    (30)
       ; LBL :OPK: the operation X (86-89, in R74): a number given and an operation pending: it is done first
       ; (left to right, as the Casio: 2 + 3 x 4 = 20); no operation pending: the first number is X; then the
       ; new operation is pending (a second operation key only replaces it)
- 444  LBL :OPK:    (31)
- 445  STO 74
- 446  RCL 30
- 447  RCL 38
- 448  +
- 449  X≠0?
- 450  RTN
- 451  RCL 43
- 452  X=0?
- 453  GTO :OPSET:    (32)
- 454  RCL 22
- 455  X≠0?
- 456  XEQ :DOOP:    (34)
- 457  LBL :OPSET:    (32)
- 458  RCL 22
- 459  X=0?
- 460  XEQ :ACCX:    (33)
- 461  RCL 74
- 462  STO 22
- 463  0
- 464  STO 25
- 465  STO 43
- 466  GTO :SHOW:    (67)
+ 412  LBL :OPK:    (30)
+ 413  STO 74
+ 414  RCL 30
+ 415  RCL 38
+ 416  +
+ 417  X≠0?
+ 418  RTN
+ 419  RCL 43
+ 420  X=0?
+ 421  GTO :OPSET:    (31)
+ 422  RCL 22
+ 423  X≠0?
+ 424  XEQ :DOOP:    (33)
+ 425  LBL :OPSET:    (31)
+ 426  RCL 22
+ 427  X=0?
+ 428  XEQ :ACCX:    (32)
+ 429  RCL 74
+ 430  STO 22
+ 431  0
+ 432  STO 25
+ 433  STO 43
+ 434  GTO :SHOW:    (66)
       ; LBL :ACCX: the first number = X
- 467  LBL :ACCX:    (33)
- 468  RCL 20
- 469  STO 21
- 470  RTN
+ 435  LBL :ACCX:    (32)
+ 436  RCL 20
+ 437  STO 21
+ 438  RTN
       ; LBL :DOOP: the operation pending R22 on the first number (R75) and X (R76): the result (LBL :RES:)
       ; is X and the first number
- 471  LBL :DOOP:    (34)
- 472  RCL 21
- 473  STO 75
- 474  RCL 20
- 475  STO 76
- 476  XEQ IND 22
- 477  XEQ :RES:    (36)
- 478  RCL 20
- 479  STO 21
- 480  RTN
+ 439  LBL :DOOP:    (33)
+ 440  RCL 21
+ 441  STO 75
+ 442  RCL 20
+ 443  STO 76
+ 444  XEQ IND 22
+ 445  XEQ :RES:    (35)
+ 446  RCL 20
+ 447  STO 21
+ 448  RTN
       ; ---- the operations: R75 a, R76 b -> X; / by 0: E (LBL :DZ:, the result 0) ----
- 481  LBL 86
- 482  RCL 75
- 483  RCL 76
- 484  +
- 485  RTN
- 486  LBL 87
- 487  RCL 75
- 488  RCL 76
- 489  -
- 490  RTN
- 491  LBL 88
- 492  RCL 75
- 493  RCL 76
- 494  ×
- 495  RTN
- 496  LBL 89
- 497  RCL 76
- 498  X=0?
- 499  GTO :DZ:    (35)
- 500  RCL 75
- 501  X<>Y
- 502  ÷
- 503  RTN
- 504  LBL :DZ:    (35)
- 505  1
- 506  STO 30
- 507  0
- 508  RTN
+ 449  LBL 86
+ 450  RCL 75
+ 451  RCL 76
+ 452  +
+ 453  RTN
+ 454  LBL 87
+ 455  RCL 75
+ 456  RCL 76
+ 457  -
+ 458  RTN
+ 459  LBL 88
+ 460  RCL 75
+ 461  RCL 76
+ 462  ×
+ 463  RTN
+ 464  LBL 89
+ 465  RCL 76
+ 466  X=0?
+ 467  GTO :DZ:    (34)
+ 468  RCL 75
+ 469  X<>Y
+ 470  ÷
+ 471  RTN
+ 472  LBL :DZ:    (34)
+ 473  1
+ 474  STO 30
+ 475  0
+ 476  RTN
       ; ---- the % of each operation (LBL 90-93 = the operation + 4): a + b % = a + ab/100, a - b % =
       ; a - ab/100, a x b % = ab/100, a / b % = 100a/b ----
- 509  LBL 90
- 510  RCL 75
- 511  RCL 76
- 512  ×
- 513  100
- 514  ÷
- 515  RCL 75
- 516  +
- 517  RTN
- 518  LBL 91
- 519  RCL 75
- 520  RCL 76
- 521  ×
- 522  100
- 523  ÷
- 524  RCL 75
- 525  X<>Y
- 526  -
- 527  RTN
- 528  LBL 92
- 529  RCL 75
- 530  RCL 76
- 531  ×
- 532  100
- 533  ÷
- 534  RTN
- 535  LBL 93
- 536  RCL 76
- 537  X=0?
- 538  GTO :DZ:    (35)
- 539  RCL 75
- 540  X<>Y
- 541  ÷
- 542  100
- 543  ×
- 544  RTN
+ 477  LBL 90
+ 478  RCL 75
+ 479  RCL 76
+ 480  ×
+ 481  100
+ 482  ÷
+ 483  RCL 75
+ 484  +
+ 485  RTN
+ 486  LBL 91
+ 487  RCL 75
+ 488  RCL 76
+ 489  ×
+ 490  100
+ 491  ÷
+ 492  RCL 75
+ 493  X<>Y
+ 494  -
+ 495  RTN
+ 496  LBL 92
+ 497  RCL 75
+ 498  RCL 76
+ 499  ×
+ 500  100
+ 501  ÷
+ 502  RTN
+ 503  LBL 93
+ 504  RCL 76
+ 505  X=0?
+ 506  GTO :DZ:    (34)
+ 507  RCL 75
+ 508  X<>Y
+ 509  ÷
+ 510  100
+ 511  ×
+ 512  RTN
       ; ---- LBL :RES: the result X: 10^10 or more: E (LBL :OVF:); cut to the display (LBL :TRUNC:) in R20;
       ; no number keyed or given ----
- 545  LBL :RES:    (36)
- 546  STO 20
- 547  ABS
- 548  RCL 79
- 549  X≤Y?
- 550  XEQ :OVF:    (37)
- 551  XEQ :TRUNC:    (38)
- 552  0
- 553  STO 25
- 554  STO 43
- 555  RTN
+ 513  LBL :RES:    (35)
+ 514  STO 20
+ 515  ABS
+ 516  RCL 79
+ 517  X≤Y?
+ 518  XEQ :OVF:    (36)
+ 519  XEQ :TRUNC:    (37)
+ 520  0
+ 521  STO 25
+ 522  STO 43
+ 523  RTN
       ; LBL :OVF: E, and X / 10^10 until it fits (the Casio shows the first digits of the result)
- 556  LBL :OVF:    (37)
- 557  1
- 558  STO 30
- 559  DO    (03)
- 560    RCL 20
- 561    RCL 79
- 562    ÷
- 563    STO 20
- 564    ABS
- 565    RCL 79
- 566    X≤Y?
- 567  WHILE    (03)
- 568  ENDDO    (03)
- 569  RTN
+ 524  LBL :OVF:    (36)
+ 525  1
+ 526  STO 30
+ 527  DO    (03)
+ 528    RCL 20
+ 529    RCL 79
+ 530    ÷
+ 531    STO 20
+ 532    ABS
+ 533    RCL 79
+ 534    X≤Y?
+ 535  WHILE    (03)
+ 536  ENDDO    (03)
+ 537  RTN
       ; ---- LBL :TRUNC: X (R20, under 10^10) cut to 10 digits: 10^(10 - digits before the point) (R76: 10^9
       ; for one digit, / 10 for each digit more), |X| = IP(|X| R76) / R76; then its decimals R46 and N = the
       ; digits as an integer (R45); R20 = N / 10^decimals with the sign of X (x (1 - 2 negative)), also in R86:
       ; R45 and R46 are those of R86 (LBL :SHOW: does not cut it again) ----
- 570  LBL :TRUNC:    (38)
- 571  RCL 20
- 572  ABS
- 573  STO 47
- 574  1000000000
- 575  STO 76
- 576  9
- 577  STO 46
- 578  DO    (04)
- 579    10
- 580    RCL 47
- 581    X≥Y?
- 582  WHILE    (04)
- 583    RCL 47
- 584    10
- 585    ÷
- 586    STO 47
- 587    RCL 76
- 588    10
- 589    ÷
- 590    STO 76
- 591    1
- 592    STO- 46
- 593  ENDDO    (04)
- 594  RCL 20
- 595  ABS
- 596  RCL 76
- 597  ×
- 598  IP
- 599  RCL 76
- 600  ÷
- 601  STO 47
+ 538  LBL :TRUNC:    (37)
+ 539  RCL 20
+ 540  ABS
+ 541  STO 47
+ 542  1000000000
+ 543  STO 76
+ 544  9
+ 545  STO 46
+ 546  DO    (04)
+ 547    10
+ 548    RCL 47
+ 549    X≥Y?
+ 550  WHILE    (04)
+ 551    RCL 47
+ 552    10
+ 553    ÷
+ 554    STO 47
+ 555    RCL 76
+ 556    10
+ 557    ÷
+ 558    STO 76
+ 559    1
+ 560    STO- 46
+ 561  ENDDO    (04)
+ 562  RCL 20
+ 563  ABS
+ 564  RCL 76
+ 565  ×
+ 566  IP
+ 567  RCL 76
+ 568  ÷
+ 569  STO 47
       ; the decimals it has (R46: 0 up while |X| 10^d has a fraction), p = 10^d (R76), N = |X| p
- 602  0
- 603  STO 46
- 604  1
- 605  STO 76
- 606  DO    (05)
- 607    RCL 47
- 608    RCL 76
- 609    ×
- 610    FP
- 611    X≠0?
- 612  WHILE    (05)
- 613    10
- 614    STO× 76
- 615    1
- 616    STO+ 46
- 617  ENDDO    (05)
- 618  RCL 47
- 619  RCL 76
- 620  ×
- 621  STO 45
+ 570  0
+ 571  STO 46
+ 572  1
+ 573  STO 76
+ 574  DO    (05)
+ 575    RCL 47
+ 576    RCL 76
+ 577    ×
+ 578    FP
+ 579    X≠0?
+ 580  WHILE    (05)
+ 581    10
+ 582    STO× 76
+ 583    1
+ 584    STO+ 46
+ 585  ENDDO    (05)
+ 586  RCL 47
+ 587  RCL 76
+ 588  ×
+ 589  STO 45
       ; the sign: |X| - X is 2|X| when X is negative (X≠0? 1: 1), else 0; 1 - 2 negative
- 622  RCL 20
- 623  ABS
- 624  RCL 20
- 625  -
- 626  X≠0?
- 627  1
- 628  2
- 629  ×
- 630  1
- 631  X<>Y
- 632  -
- 633  RCL 45
- 634  ×
- 635  RCL 76
- 636  ÷
- 637  STO 20
- 638  STO 86
- 639  RTN
+ 590  RCL 20
+ 591  ABS
+ 592  RCL 20
+ 593  -
+ 594  X≠0?
+ 595  1
+ 596  2
+ 597  ×
+ 598  1
+ 599  X<>Y
+ 600  -
+ 601  RCL 45
+ 602  ×
+ 603  RCL 76
+ 604  ÷
+ 605  STO 20
+ 606  STO 86
+ 607  RTN
       ; ---- = (41): in RATE SET the rate (LBL :RSET:); an operation pending: done, and it is the constant
       ; (LBL :EQOP:); else the constant on X (LBL :EQK2:) ----
- 640  LBL 41
- 641  3
- 642  0
- 643  1
- 644  XEQ :HL:    (84)
- 645  RCL 38
- 646  X≠0?
- 647  GTO :RSET:    (56)
- 648  RCL 30
- 649  X≠0?
- 650  RTN
- 651  RCL 22
- 652  X≠0?
- 653  GTO :EQOP:    (39)
- 654  RCL 23
- 655  X≠0?
- 656  GTO :EQK2:    (42)
- 657  0
- 658  STO 25
- 659  STO 43
- 660  GTO :SHOW:    (67)
+ 608  LBL 41
+ 609  3
+ 610  0
+ 611  1
+ 612  XEQ :HL:    (81)
+ 613  RCL 38
+ 614  X≠0?
+ 615  GTO :RSET:    (51)
+ 616  RCL 30
+ 617  X≠0?
+ 618  RTN
+ 619  RCL 22
+ 620  X≠0?
+ 621  GTO :EQOP:    (38)
+ 622  RCL 23
+ 623  X≠0?
+ 624  GTO :EQK2:    (40)
+ 625  0
+ 626  STO 25
+ 627  STO 43
+ 628  GTO :SHOW:    (66)
       ; LBL :EQOP: K = the second number (for x the first: LBL :KACC:), its operation R23; done
- 661  LBL :EQOP:    (39)
- 662  RCL 20
- 663  STO 24
- 664  88
- 665  RCL 22
- 666  X=Y?
- 667  XEQ :KACC:    (40)
- 668  RCL 22
- 669  STO 23
- 670  XEQ :DOOP:    (34)
- 671  0
- 672  STO 22
- 673  GTO :SHOW:    (67)
- 674  LBL :KACC:    (40)
- 675  RCL 21
- 676  STO 24
- 677  RTN
+ 629  LBL :EQOP:    (38)
+ 630  RCL 20
+ 631  STO 24
+ 632  88
+ 633  RCL 22
+ 634  X=Y?
+ 635  XEQ :KACC:    (39)
+ 636  RCL 22
+ 637  STO 23
+ 638  XEQ :DOOP:    (33)
+ 639  0
+ 640  STO 22
+ 641  GTO :SHOW:    (66)
+ 642  LBL :KACC:    (39)
+ 643  RCL 21
+ 644  STO 24
+ 645  RTN
       ; LBL :EQK2: X op K (x: K x X, the same)
- 678  LBL :EQK2:    (42)
- 679  RCL 20
- 680  STO 75
- 681  RCL 24
- 682  STO 76
- 683  XEQ IND 23
- 684  XEQ :RES:    (36)
- 685  RCL 20
- 686  STO 21
- 687  GTO :SHOW:    (67)
+ 646  LBL :EQK2:    (40)
+ 647  RCL 20
+ 648  STO 75
+ 649  RCL 24
+ 650  STO 76
+ 651  XEQ IND 23
+ 652  XEQ :RES:    (35)
+ 653  RCL 20
+ 654  STO 21
+ 655  GTO :SHOW:    (66)
       ; LBL :EQ1: the operation pending done (M+, M-, TAX, COST ...: they finish the calculation; no constant)
- 688  LBL :EQ1:    (44)
- 689  RCL 22
- 690  X=0?
- 691  RTN
- 692  XEQ :DOOP:    (34)
- 693  0
- 694  STO 22
- 695  RTN
+ 656  LBL :EQ1:    (42)
+ 657  RCL 22
+ 658  X=0?
+ 659  RTN
+ 660  XEQ :DOOP:    (33)
+ 661  0
+ 662  STO 22
+ 663  RTN
       ; ---- % (14, F4): with an operation pending its % (LBL 90-93), else X / 100 ----
- 696  LBL 14
- 697  3
- 698  4
- 699  1
- 700  XEQ :HL:    (84)
- 701  RCL 30
- 702  RCL 38
- 703  +
- 704  X≠0?
- 705  RTN
- 706  RCL 22
- 707  X=0?
- 708  GTO :PCT0:    (46)
- 709  RCL 21
- 710  STO 75
- 711  RCL 20
- 712  STO 76
- 713  RCL 22
- 714  4
- 715  +
- 716  STO 77
- 717  XEQ IND 77
- 718  XEQ :RES:    (36)
- 719  0
- 720  STO 22
- 721  RCL 20
- 722  STO 21
- 723  GTO :SHOW:    (67)
- 724  LBL :PCT0:    (46)
- 725  RCL 20
- 726  100
- 727  ÷
- 728  XEQ :RES:    (36)
- 729  GTO :SHOW:    (67)
+ 664  LBL 14
+ 665  3
+ 666  4
+ 667  1
+ 668  XEQ :HL:    (81)
+ 669  RCL 30
+ 670  RCL 38
+ 671  +
+ 672  X≠0?
+ 673  RTN
+ 674  RCL 22
+ 675  X=0?
+ 676  GTO :PCT0:    (44)
+ 677  RCL 21
+ 678  STO 75
+ 679  RCL 20
+ 680  STO 76
+ 681  RCL 22
+ 682  4
+ 683  +
+ 684  STO 77
+ 685  XEQ IND 77
+ 686  XEQ :RES:    (35)
+ 687  0
+ 688  STO 22
+ 689  RCL 20
+ 690  STO 21
+ 691  GTO :SHOW:    (66)
+ 692  LBL :PCT0:    (44)
+ 693  RCL 20
+ 694  100
+ 695  ÷
+ 696  XEQ :RES:    (35)
+ 697  GTO :SHOW:    (66)
       ; ---- MRC (21): the memory to X (given); twice: the memory cleared (the key before 0 again) ----
- 730  LBL 21
- 731  5
- 732  2
- 733  1
- 734  XEQ :HL:    (84)
- 735  RCL 30
- 736  RCL 38
- 737  +
- 738  X≠0?
- 739  RTN
- 740  21
- 741  RCL 34
- 742  X=Y?
- 743  GTO :MCLR:    (47)
- 744  RCL 31
- 745  STO 20
- 746  0
- 747  STO 25
- 748  1
- 749  STO 43
- 750  GTO :SHOW:    (67)
- 751  LBL :MCLR:    (47)
- 752  0
- 753  STO 31
- 754  STO "MHMEM"
- 755  STO 33
- 756  GTO :SHOW:    (67)
+ 698  LBL 21
+ 699  5
+ 700  2
+ 701  1
+ 702  XEQ :HL:    (81)
+ 703  RCL 30
+ 704  RCL 38
+ 705  +
+ 706  X≠0?
+ 707  RTN
+ 708  21
+ 709  RCL 34
+ 710  X=Y?
+ 711  GTO :MCLR:    (46)
+ 712  RCL 31
+ 713  STO 20
+ 714  0
+ 715  STO 25
+ 716  1
+ 717  STO 43
+ 718  GTO :SHOW:    (66)
+ 719  LBL :MCLR:    (46)
+ 720  0
+ 721  STO 31
+ 722  STO "MHMEM"
+ 723  STO 33
+ 724  GTO :SHOW:    (66)
       ; ---- M- (22), M+ (23): the calculation finished, then the memory -/+ X, cut to 10 digits; 10^10 or
       ; more: E (LBL :MOVF:, the memory as it was) ----
- 757  LBL 22
- 758  5
- 759  1
- 760  1
- 761  XEQ :HL:    (84)
- 762  -1
- 763  GTO :MPM:    (48)
- 764  LBL 23
- 765  5
- 766  0
- 767  1
- 768  XEQ :HL:    (84)
- 769  1
- 770  GTO :MPM:    (48)
- 771  LBL :MPM:    (48)
- 772  STO 74
- 773  RCL 30
- 774  RCL 38
- 775  +
- 776  X≠0?
- 777  RTN
- 778  XEQ :EQ1:    (44)
- 779  RCL 30
- 780  X≠0?
- 781  GTO :SHOW:    (67)
- 782  RCL 20
- 783  STO 77
- 784  RCL 74
- 785  ×
- 786  RCL 31
- 787  +
- 788  STO 20
- 789  ABS
- 790  RCL 79
- 791  X≤Y?
- 792  GTO :MOVF:    (49)
- 793  XEQ :TRUNC:    (38)
- 794  RCL 20
- 795  STO 31
- 796  STO "MHMEM"
- 797  RCL 77
- 798  STO 20
- 799  0
- 800  STO 25
- 801  STO 43
- 802  GTO :SHOW:    (67)
- 803  LBL :MOVF:    (49)
- 804  RCL 77
- 805  STO 20
- 806  1
- 807  STO 30
- 808  GTO :SHOW:    (67)
+ 725  LBL 22
+ 726  5
+ 727  1
+ 728  1
+ 729  XEQ :HL:    (81)
+ 730  -1
+ 731  GTO :MPM:    (47)
+ 732  LBL 23
+ 733  5
+ 734  0
+ 735  1
+ 736  XEQ :HL:    (81)
+ 737  1
+ 738  GTO :MPM:    (47)
+ 739  LBL :MPM:    (47)
+ 740  STO 74
+ 741  RCL 30
+ 742  RCL 38
+ 743  +
+ 744  X≠0?
+ 745  RTN
+ 746  XEQ :EQ1:    (42)
+ 747  RCL 30
+ 748  X≠0?
+ 749  GTO :SHOW:    (66)
+ 750  RCL 20
+ 751  STO 77
+ 752  RCL 74
+ 753  ×
+ 754  RCL 31
+ 755  +
+ 756  STO 20
+ 757  ABS
+ 758  RCL 79
+ 759  X≤Y?
+ 760  GTO :MOVF:    (48)
+ 761  XEQ :TRUNC:    (37)
+ 762  RCL 20
+ 763  STO 31
+ 764  STO "MHMEM"
+ 765  RCL 77
+ 766  STO 20
+ 767  0
+ 768  STO 25
+ 769  STO 43
+ 770  GTO :SHOW:    (66)
+ 771  LBL :MOVF:    (48)
+ 772  RCL 77
+ 773  STO 20
+ 774  1
+ 775  STO 30
+ 776  GTO :SHOW:    (66)
       ; ---- C (24): the number keyed cleared (the operation stays); after E: E off, the value kept ----
- 809  LBL 24
- 810  0
- 811  1
- 812  1
- 813  XEQ :HL:    (84)
- 814  RCL 30
- 815  X≠0?
- 816  GTO :CLRE:    (50)
- 817  0
- 818  STO 20
- 819  STO 25
- 820  STO 43
- 821  GTO :SHOW:    (67)
- 822  LBL :CLRE:    (50)
- 823  0
- 824  STO 30
- 825  STO 22
- 826  STO 25
- 827  STO 43
- 828  RCL 20
- 829  STO 21
- 830  GTO :SHOW:    (67)
+ 777  LBL 24
+ 778  0
+ 779  1
+ 780  1
+ 781  XEQ :HL:    (81)
+ 782  RCL 30
+ 783  X≠0?
+ 784  GTO :CLRE:    (49)
+ 785  0
+ 786  STO 20
+ 787  STO 25
+ 788  STO 43
+ 789  GTO :SHOW:    (66)
+ 790  LBL :CLRE:    (49)
+ 791  0
+ 792  STO 30
+ 793  STO 22
+ 794  STO 25
+ 795  STO 43
+ 796  RCL 20
+ 797  STO 21
+ 798  GTO :SHOW:    (66)
       ; ---- AC (25): all cleared but the memory and the tax rate ----
- 831  LBL 25
- 832  0
- 833  0
- 834  1
- 835  XEQ :HL:    (84)
- 836  XEQ :AC0:    (51)
- 837  GTO :SHOW:    (67)
- 838  LBL :AC0:    (51)
- 839  0
- 840  STO 20
- 841  STO 21
- 842  STO 22
- 843  STO 23
- 844  STO 24
- 845  STO 25
- 846  STO 30
- 847  STO 37
- 848  STO 38
- 849  STO 39
- 850  STO 40
- 851  STO 41
- 852  STO 42
- 853  STO 43
- 854  -1
- 855  STO 28
- 856  RTN
+ 799  LBL 25
+ 800  0
+ 801  0
+ 802  1
+ 803  XEQ :HL:    (81)
+ 804  XEQ :AC0:    (50)
+ 805  GTO :SHOW:    (66)
+ 806  LBL :AC0:    (50)
+ 807  0
+ 808  STO 20
+ 809  STO 21
+ 810  STO 22
+ 811  STO 23
+ 812  STO 24
+ 813  STO 25
+ 814  STO 30
+ 815  STO 37
+ 816  STO 38
+ 817  STO 39
+ 818  STO 40
+ 819  STO 41
+ 820  STO 42
+ 821  STO 43
+ 822  -1
+ 823  STO 28
+ 824  RTN
       ; ---- RATE SET (26, the % key's second function): the rate shown (RATE SET), key it, then RATE SET,
       ; = or TAX+ to store it (LBL :RSET:, kept in MHTAX) ----
- 857  LBL 26
- 858  3
- 859  4
- 860  1
- 861  XEQ :HL:    (84)
- 862  RCL 30
- 863  X≠0?
- 864  RTN
- 865  RCL 38
- 866  X≠0?
- 867  GTO :RSET:    (56)
- 868  1
- 869  STO 38
- 870  RCL 32
- 871  STO 20
- 872  0
- 873  STO 22
- 874  STO 25
- 875  STO 43
- 876  GTO :SHOW:    (67)
- 877  LBL :RSET:    (56)
- 878  RCL 20
- 879  ABS
- 880  STO 32
- 881  STO "MHTAX"
- 882  STO 20
- 883  0
- 884  STO 38
- 885  STO 25
- 886  STO 43
- 887  1024
- 888  STO 35
- 889  GTO :SHOW:    (67)
+ 825  LBL 26
+ 826  3
+ 827  4
+ 828  1
+ 829  XEQ :HL:    (81)
+ 830  RCL 30
+ 831  X≠0?
+ 832  RTN
+ 833  RCL 38
+ 834  X≠0?
+ 835  GTO :RSET:    (51)
+ 836  1
+ 837  STO 38
+ 838  RCL 32
+ 839  STO 20
+ 840  0
+ 841  STO 22
+ 842  STO 25
+ 843  STO 43
+ 844  GTO :SHOW:    (66)
+ 845  LBL :RSET:    (51)
+ 846  RCL 20
+ 847  ABS
+ 848  STO 32
+ 849  STO "MHTAX"
+ 850  STO 20
+ 851  0
+ 852  STO 38
+ 853  STO 25
+ 854  STO 43
+ 855  1024
+ 856  STO 35
+ 857  GTO :SHOW:    (66)
       ; ---- TAX+ (16, F6): X + its tax (the tax in R37, TAX+); pressed again: the tax (LBL :TAXSH:) ----
- 890  LBL 16
- 891  5
- 892  4
- 893  1
- 894  XEQ :HL:    (84)
- 895  RCL 38
- 896  X≠0?
- 897  GTO :RSET:    (56)
- 898  RCL 30
- 899  X≠0?
- 900  RTN
- 901  16
- 902  RCL 34
- 903  X=Y?
- 904  GTO :TAXSH:    (57)
- 905  XEQ :EQ1:    (44)
- 906  RCL 30
- 907  X≠0?
- 908  GTO :SHOW:    (67)
- 909  RCL 20
- 910  STO 77
- 911  RCL 32
- 912  ×
- 913  100
- 914  ÷
- 915  XEQ :RES:    (36)
- 916  RCL 20
- 917  STO 37
- 918  RCL 77
- 919  +
- 920  XEQ :RES:    (36)
- 921  64
- 922  STO 35
- 923  GTO :SHOW:    (67)
- 924  LBL :TAXSH:    (57)
- 925  RCL 37
- 926  STO 20
- 927  256
- 928  STO 35
- 929  0
- 930  STO 25
- 931  STO 43
- 932  GTO :SHOW:    (67)
+ 858  LBL 16
+ 859  5
+ 860  4
+ 861  1
+ 862  XEQ :HL:    (81)
+ 863  RCL 38
+ 864  X≠0?
+ 865  GTO :RSET:    (51)
+ 866  RCL 30
+ 867  X≠0?
+ 868  RTN
+ 869  16
+ 870  RCL 34
+ 871  X=Y?
+ 872  GTO :TAXSH:    (56)
+ 873  XEQ :EQ1:    (42)
+ 874  RCL 30
+ 875  X≠0?
+ 876  GTO :SHOW:    (66)
+ 877  RCL 20
+ 878  STO 77
+ 879  RCL 32
+ 880  ×
+ 881  100
+ 882  ÷
+ 883  XEQ :RES:    (35)
+ 884  RCL 20
+ 885  STO 37
+ 886  RCL 77
+ 887  +
+ 888  XEQ :RES:    (35)
+ 889  64
+ 890  STO 35
+ 891  GTO :SHOW:    (66)
+ 892  LBL :TAXSH:    (56)
+ 893  RCL 37
+ 894  STO 20
+ 895  256
+ 896  STO 35
+ 897  0
+ 898  STO 25
+ 899  STO 43
+ 900  GTO :SHOW:    (66)
       ; ---- TAX- (15, F5): X without its tax (100X / (100 + rate)), the tax X - that (TAX-); again: the tax ----
- 933  LBL 15
- 934  4
- 935  4
- 936  1
- 937  XEQ :HL:    (84)
- 938  RCL 30
- 939  RCL 38
- 940  +
- 941  X≠0?
- 942  RTN
- 943  15
- 944  RCL 34
- 945  X=Y?
- 946  GTO :TAXSH:    (57)
- 947  XEQ :EQ1:    (44)
- 948  RCL 30
- 949  X≠0?
- 950  GTO :SHOW:    (67)
- 951  RCL 20
- 952  STO 77
- 953  100
- 954  ×
- 955  100
- 956  RCL 32
- 957  +
- 958  ÷
- 959  XEQ :RES:    (36)
- 960  RCL 77
- 961  RCL 20
- 962  -
- 963  STO 37
- 964  128
- 965  STO 35
- 966  GTO :SHOW:    (67)
+ 901  LBL 15
+ 902  4
+ 903  4
+ 904  1
+ 905  XEQ :HL:    (81)
+ 906  RCL 30
+ 907  RCL 38
+ 908  +
+ 909  X≠0?
+ 910  RTN
+ 911  15
+ 912  RCL 34
+ 913  X=Y?
+ 914  GTO :TAXSH:    (56)
+ 915  XEQ :EQ1:    (42)
+ 916  RCL 30
+ 917  X≠0?
+ 918  GTO :SHOW:    (66)
+ 919  RCL 20
+ 920  STO 77
+ 921  100
+ 922  ×
+ 923  100
+ 924  RCL 32
+ 925  +
+ 926  ÷
+ 927  XEQ :RES:    (35)
+ 928  RCL 77
+ 929  RCL 20
+ 930  -
+ 931  STO 37
+ 932  128
+ 933  STO 35
+ 934  GTO :SHOW:    (66)
       ; ---- COST (11, F1), SELL (12, F2), MAR (13, F3): LBL :CSM: with the kind t = 1, 2, 3 ----
- 967  LBL 11
- 968  0
- 969  4
- 970  1
- 971  XEQ :HL:    (84)
- 972  1
- 973  GTO :CSM:    (58)
- 974  LBL 12
- 975  1
- 976  4
- 977  1
- 978  XEQ :HL:    (84)
- 979  2
- 980  GTO :CSM:    (58)
- 981  LBL 13
- 982  2
- 983  4
- 984  1
- 985  XEQ :HL:    (84)
- 986  3
- 987  GTO :CSM:    (58)
+ 935  LBL 11
+ 936  0
+ 937  4
+ 938  1
+ 939  XEQ :HL:    (81)
+ 940  1
+ 941  GTO :CSM:    (57)
+ 942  LBL 12
+ 943  1
+ 944  4
+ 945  1
+ 946  XEQ :HL:    (81)
+ 947  2
+ 948  GTO :CSM:    (57)
+ 949  LBL 13
+ 950  2
+ 951  4
+ 952  1
+ 953  XEQ :HL:    (81)
+ 954  3
+ 955  GTO :CSM:    (57)
       ; LBL :CSM: no number given and the key before one of the three: the value of t shown (LBL :CSMRC:);
       ; else X is the value of t (R38 + t), the calculation finished first; the second of two kinds: the
       ; third u = 6 - first - t worked out (LBL 93 + u) and shown, else t is the first (R42)
- 988  LBL :CSM:    (58)
- 989  STO 74
- 990  RCL 30
- 991  RCL 38
- 992  +
- 993  X≠0?
- 994  RTN
- 995  RCL 43
- 996  X≠0?
- 997  GTO :CSMIN:    (59)
+ 956  LBL :CSM:    (57)
+ 957  STO 74
+ 958  RCL 30
+ 959  RCL 38
+ 960  +
+ 961  X≠0?
+ 962  RTN
+ 963  RCL 43
+ 964  X≠0?
+ 965  GTO :CSMIN:    (58)
       ; the key before 11-13: |k - 12| ≤ 1
- 998  RCL 34
- 999  12
-1000  -
-1001  ABS
-1002  1
-1003  X≥Y?
-1004  GTO :CSMRC:    (66)
-1005  LBL :CSMIN:    (59)
-1006  XEQ :EQ1:    (44)
-1007  RCL 30
-1008  X≠0?
-1009  GTO :SHOW:    (67)
-1010  RCL 74
-1011  38
-1012  +
-1013  STO 77
-1014  RCL 20
-1015  STO IND 77
-1016  RCL 42
-1017  X=0?
-1018  GTO :CSM1:    (60)
-1019  RCL 74
-1020  X=Y?
-1021  GTO :CSM1:    (60)
-1022  6
-1023  RCL 42
-1024  -
-1025  RCL 74
-1026  -
-1027  STO 74
-1028  93
-1029  +
-1030  STO 77
-1031  XEQ IND 77
-1032  XEQ :RES:    (36)
-1033  RCL 74
-1034  38
-1035  +
-1036  STO 77
-1037  RCL 20
-1038  STO IND 77
-1039  0
-1040  STO 42
-1041  GTO :CSMI:    (61)
-1042  LBL :CSM1:    (60)
-1043  RCL 74
-1044  STO 42
-1045  0
-1046  STO 25
-1047  STO 43
+ 966  RCL 34
+ 967  12
+ 968  -
+ 969  ABS
+ 970  1
+ 971  X≥Y?
+ 972  GTO :CSMRC:    (61)
+ 973  LBL :CSMIN:    (58)
+ 974  XEQ :EQ1:    (42)
+ 975  RCL 30
+ 976  X≠0?
+ 977  GTO :SHOW:    (66)
+ 978  RCL 74
+ 979  38
+ 980  +
+ 981  STO 77
+ 982  RCL 20
+ 983  STO IND 77
+ 984  RCL 42
+ 985  X=0?
+ 986  GTO :CSM1:    (59)
+ 987  RCL 74
+ 988  X=Y?
+ 989  GTO :CSM1:    (59)
+ 990  6
+ 991  RCL 42
+ 992  -
+ 993  RCL 74
+ 994  -
+ 995  STO 74
+ 996  93
+ 997  +
+ 998  STO 77
+ 999  XEQ IND 77
+1000  XEQ :RES:    (35)
+1001  RCL 74
+1002  38
+1003  +
+1004  STO 77
+1005  RCL 20
+1006  STO IND 77
+1007  0
+1008  STO 42
+1009  GTO :CSMI:    (60)
+1010  LBL :CSM1:    (59)
+1011  RCL 74
+1012  STO 42
+1013  0
+1014  STO 25
+1015  STO 43
       ; LBL :CSMI: the indicator of t: 8 16 32 = 4t(t - 1) + 8
-1048  LBL :CSMI:    (61)
-1049  RCL 74
-1050  1
-1051  -
-1052  RCL 74
-1053  ×
-1054  4
-1055  ×
-1056  8
-1057  +
-1058  STO 35
-1059  GTO :SHOW:    (67)
-1060  LBL :CSMRC:    (66)
-1061  RCL 74
-1062  38
-1063  +
-1064  STO 77
-1065  RCL IND 77
-1066  STO 20
-1067  0
-1068  STO 25
-1069  STO 43
-1070  GTO :CSMI:    (61)
+1016  LBL :CSMI:    (60)
+1017  RCL 74
+1018  1
+1019  -
+1020  RCL 74
+1021  ×
+1022  4
+1023  ×
+1024  8
+1025  +
+1026  STO 35
+1027  GTO :SHOW:    (66)
+1028  LBL :CSMRC:    (61)
+1029  RCL 74
+1030  38
+1031  +
+1032  STO 77
+1033  RCL IND 77
+1034  STO 20
+1035  0
+1036  STO 25
+1037  STO 43
+1038  GTO :CSMI:    (60)
       ; ---- cost c = s (100 - m) / 100, selling price s = 100c / (100 - m), margin m = 100 (s - c) / s
       ; (R39 c, R40 s, R41 m; LBL 94-96) ----
-1071  LBL 94
-1072  RCL 40
-1073  100
-1074  RCL 41
-1075  -
-1076  ×
-1077  100
-1078  ÷
-1079  RTN
-1080  LBL 95
-1081  100
-1082  RCL 41
-1083  -
-1084  X=0?
-1085  GTO :DZ:    (35)
-1086  RCL 39
-1087  100
-1088  ×
-1089  X<>Y
-1090  ÷
-1091  RTN
-1092  LBL 96
-1093  RCL 40
-1094  X=0?
-1095  GTO :DZ:    (35)
-1096  RCL 39
-1097  -
-1098  RCL 40
-1099  ÷
-1100  100
-1101  ×
-1102  RTN
+1039  LBL 94
+1040  RCL 40
+1041  100
+1042  RCL 41
+1043  -
+1044  ×
+1045  100
+1046  ÷
+1047  RTN
+1048  LBL 95
+1049  100
+1050  RCL 41
+1051  -
+1052  X=0?
+1053  GTO :DZ:    (34)
+1054  RCL 39
+1055  100
+1056  ×
+1057  X<>Y
+1058  ÷
+1059  RTN
+1060  LBL 96
+1061  RCL 40
+1062  X=0?
+1063  GTO :DZ:    (34)
+1064  RCL 39
+1065  -
+1066  RCL 40
+1067  ÷
+1068  100
+1069  ×
+1070  RTN
       ; ======== the display ========
       ; ---- LBL :SHOW: the digits: the number being keyed (R26, R28) or X cut (LBL :TRUNC:); each cell k
       ; from the right: its digit (LBL :DSH:: q not 0, or k not past the decimals) or blank (10); the mark
       ; after it: 1 the point (k = decimals), + 2 a thousands mark (LBL :TK:); a cell or mark drawn only when
       ; it changes (R50-R69); then the indicators (R74) when they change (LBL :INDS:) ----
-1103  LBL :SHOW:    (67)
-1104  RCL 25
-1105  X≠0?
-1106  XEQ :ENTD:    (69)
-1107  RCL 25
-1108  X=0?
-1109  XEQ :TRSH:    (70)
+1071  LBL :SHOW:    (66)
+1072  RCL 25
+1073  X≠0?
+1074  XEQ :ENTD:    (68)
+1075  RCL 25
+1076  X=0?
+1077  XEQ :TRSH:    (69)
       ; the decimals at least 0 (no point keyed: the point after the last digit, as the Casio)
-1110  0
-1111  RCL 46
-1112  X<0?
-1113  X<>Y
-1114  STO 46
+1078  0
+1079  RCL 46
+1080  X<0?
+1081  X<>Y
+1082  STO 46
       ; the cells to look at: m = the larger of decimals + 1 and the cells with a digit last time (R49), R74;
       ; R49 0 again (LBL :DSH: sets it)
-1115  RCL 46
-1116  1
-1117  +
-1118  RCL 49
-1119  X<Y?
-1120  X<>Y
-1121  STO 74
-1122  0
-1123  STO 49
-1124  RCL 45
-1125  STO 47
-1126  0
-1127  STO 48
-1128  DO    (06)
-1129    10
-1130    STO 75
-1131    RCL 47
-1132    X≠0?
-1133    XEQ :DSH:    (68)
-1134    RCL 46
-1135    RCL 48
-1136    X≤Y?
-1137    XEQ :DSH:    (68)
+1083  RCL 46
+1084  1
+1085  +
+1086  RCL 49
+1087  X<Y?
+1088  X<>Y
+1089  STO 74
+1090  0
+1091  STO 49
+1092  RCL 45
+1093  STO 47
+1094  0
+1095  STO 48
+1096  DO    (06)
+1097    10
+1098    STO 75
+1099    RCL 47
+1100    X≠0?
+1101    XEQ :DSH:    (67)
+1102    RCL 46
+1103    RCL 48
+1104    X≤Y?
+1105    XEQ :DSH:    (67)
         ; the point: 1 - (|k - decimals| not 0)
-1138    RCL 48
-1139    RCL 46
-1140    -
-1141    ABS
-1142    X≠0?
-1143    1
-1144    1
-1145    X<>Y
-1146    -
-1147    STO 76
-1148    RCL 47
-1149    X≠0?
-1150    XEQ :TK:    (71)
-1151    RCL 48
-1152    50
-1153    +
-1154    STO 77
-1155    RCL IND 77
-1156    RCL 75
-1157    X≠Y?
-1158    XEQ :CELL:    (76)
-1159    RCL 48
-1160    60
-1161    +
-1162    STO 78
-1163    RCL IND 78
-1164    RCL 76
-1165    X≠Y?
-1166    XEQ :GAP:    (77)
-1167    RCL 47
-1168    10
-1169    ÷
-1170    IP
-1171    STO 47
-1172    1
-1173    STO+ 48
+1106    RCL 48
+1107    RCL 46
+1108    -
+1109    ABS
+1110    X≠0?
+1111    1
+1112    1
+1113    X<>Y
+1114    -
+1115    STO 76
+1116    RCL 47
+1117    X≠0?
+1118    XEQ :TK:    (70)
+1119    RCL 48
+1120    50
+1121    +
+1122    STO 77
+1123    RCL IND 77
+1124    RCL 75
+1125    X≠Y?
+1126    XEQ :CELL:    (71)
+1127    RCL 48
+1128    60
+1129    +
+1130    STO 78
+1131    RCL IND 78
+1132    RCL 76
+1133    X≠Y?
+1134    XEQ :GAP:    (76)
+1135    RCL 47
+1136    10
+1137    ÷
+1138    IP
+1139    STO 47
+1140    1
+1141    STO+ 48
         ; on while q is not 0 or k < m: q + (the larger of m - k and 0) > 0
-1174    0
-1175    RCL 74
-1176    RCL 48
-1177    -
-1178    X<Y?
-1179    X<>Y
-1180    RCL 47
-1181    +
-1182    X>0?
-1183  WHILE    (06)
-1184  ENDDO    (06)
+1142    0
+1143    RCL 74
+1144    RCL 48
+1145    -
+1146    X<Y?
+1147    X<>Y
+1148    RCL 47
+1149    +
+1150    X>0?
+1151  WHILE    (06)
+1152  ENDDO    (06)
       ; the indicators: R35 + M (memory not 0) + minus + E + RATE SET
-1185  RCL 35
-1186  STO 74
-1187  RCL 31
-1188  X≠0?
-1189  1
-1190  STO+ 74
-1191  RCL 20
-1192  ABS
-1193  RCL 20
-1194  -
-1195  X≠0?
-1196  2
-1197  STO+ 74
-1198  RCL 30
-1199  4
-1200  ×
-1201  STO+ 74
-1202  RCL 38
-1203  1536
-1204  ×
-1205  STO+ 74
-1206  RCL 74
-1207  RCL 36
-1208  X≠Y?
-1209  XEQ :INDS:    (81)
-1210  RTN
-1211  LBL :DSH:    (68)
-1212  RCL 47
-1213  10
-1214  MOD
-1215  STO 75
-1216  RCL 48
-1217  1
-1218  +
-1219  STO 49
-1220  RTN
+1153  RCL 35
+1154  STO 74
+1155  RCL 31
+1156  X≠0?
+1157  1
+1158  STO+ 74
+1159  RCL 20
+1160  ABS
+1161  RCL 20
+1162  -
+1163  X≠0?
+1164  2
+1165  STO+ 74
+1166  RCL 30
+1167  4
+1168  ×
+1169  STO+ 74
+1170  RCL 38
+1171  1536
+1172  ×
+1173  STO+ 74
+1174  RCL 74
+1175  RCL 36
+1176  X≠Y?
+1177  XEQ :INDS:    (80)
+1178  RTN
+1179  LBL :DSH:    (67)
+1180  RCL 47
+1181  10
+1182  MOD
+1183  STO 75
+1184  RCL 48
+1185  1
+1186  +
+1187  STO 49
+1188  RTN
       ; LBL :ENTD: the number being keyed: its digits and decimals; R86 none (-1E20: no value is that)
-1221  LBL :ENTD:    (69)
-1222  RCL 26
-1223  STO 45
-1224  RCL 28
-1225  STO 46
-1226  -1E20
-1227  STO 86
-1228  RTN
+1189  LBL :ENTD:    (68)
+1190  RCL 26
+1191  STO 45
+1192  RCL 28
+1193  STO 46
+1194  -1E20
+1195  STO 86
+1196  RTN
       ; LBL :TRSH: X cut (LBL :TRUNC:) unless R45 and R46 are already those of X (R86 = X)
-1229  LBL :TRSH:    (70)
-1230  RCL 20
-1231  RCL 86
-1232  X≠Y?
-1233  GTO :TRUNC:    (38)
-1234  RTN
+1197  LBL :TRSH:    (69)
+1198  RCL 20
+1199  RCL 86
+1200  X≠Y?
+1201  GTO :TRUNC:    (37)
+1202  RTN
       ; LBL :TK: a thousands mark after cell k: k - decimals > 0 and a multiple of 3 (q not 0: a digit there)
-1235  LBL :TK:    (71)
-1236  RCL 48
-1237  RCL 46
-1238  -
-1239  X≤0?
-1240  RTN
-1241  3
-1242  MOD
-1243  X≠0?
-1244  RTN
-1245  2
-1246  STO+ 76
-1247  RTN
+1203  LBL :TK:    (70)
+1204  RCL 48
+1205  RCL 46
+1206  -
+1207  X≤0?
+1208  RTN
+1209  3
+1210  MOD
+1211  X≠0?
+1212  RTN
+1213  2
+1214  STO+ 76
+1215  RTN
       ; LBL :CELL: the digit R75 in cell k (R48): kept in R77's register, its words (LBL 00-10), GRMOD 1:
       ; 4, 16 and 4 columns written as they are (64 rows from 145; LBL :R4:, LBL :R16:)
-1248  LBL :CELL:    (76)
-1249  RCL 75
-1250  STO IND 77
-1251  XEQ IND 75
-1252  1
-1253  GRMOD
-1254  145
-1255  RCL 48
-1256  -31
-1257  ×
-1258  331
-1259  +
-1260  RCL 70
-1261  STO 84
-1262  DROP
-1263  XEQ :R4:    (80)
-1264  RCL 71
-1265  STO 84
-1266  DROP
-1267  XEQ :R16:    (79)
-1268  RCL 72
-1269  STO 84
-1270  DROP
-1271  XEQ :R4:    (80)
-1272  RTN
+1216  LBL :CELL:    (71)
+1217  RCL 75
+1218  STO IND 77
+1219  XEQ IND 75
+1220  1
+1221  GRMOD
+1222  145
+1223  RCL 48
+1224  -31
+1225  ×
+1226  331
+1227  +
+1228  RCL 70
+1229  STO 84
+1230  DROP
+1231  XEQ :R4:    (79)
+1232  RCL 71
+1233  STO 84
+1234  DROP
+1235  XEQ :R16:    (78)
+1236  RCL 72
+1237  STO 84
+1238  DROP
+1239  XEQ :R4:    (79)
+1240  RTN
       ; LBL :GAP: the mark R76 after cell k: columns 1 and 4 the point (A), 2 and 3 the point and the mark (B)
-1273  LBL :GAP:    (77)
-1274  RCL 76
-1275  STO IND 78
-1276  RCL 76
-1277  2
-1278  MOD
-1279  RCL 80
-1280  ×
-1281  SINT
-1282  STO 77
-1283  RCL 76
-1284  2
-1285  ÷
-1286  IP
-1287  RCL 81
-1288  ×
-1289  RCL 76
-1290  2
-1291  MOD
-1292  RCL 80
-1293  ×
-1294  +
-1295  SINT
-1296  STO 75
-1297  1
-1298  GRMOD
-1299  145
-1300  RCL 48
-1301  -31
-1302  ×
-1303  356
-1304  +
-1305  AGRAPH 77
-1306  AGRAPH 75
-1307  AGRAPH 75
-1308  AGRAPH 77
-1309  RTN
+1241  LBL :GAP:    (76)
+1242  RCL 76
+1243  STO IND 78
+1244  RCL 76
+1245  2
+1246  MOD
+1247  RCL 80
+1248  ×
+1249  SINT
+1250  STO 77
+1251  RCL 76
+1252  2
+1253  ÷
+1254  IP
+1255  RCL 81
+1256  ×
+1257  RCL 76
+1258  2
+1259  MOD
+1260  RCL 80
+1261  ×
+1262  +
+1263  SINT
+1264  STO 75
+1265  1
+1266  GRMOD
+1267  145
+1268  RCL 48
+1269  -31
+1270  ×
+1271  356
+1272  +
+1273  AGRAPH 77
+1274  AGRAPH 75
+1275  AGRAPH 75
+1276  AGRAPH 77
+1277  RTN
       ; LBL :RUN: R73 columns of the word R84 from Y (row), X (column); X moves on
-1310  LBL :RUN:    (78)
-1311  DO    (07)
-1312    AGRAPH 84
-1313    DSE 73
-1314  WHILE    (07)
-1315  ENDDO    (07)
-1316  RTN
+1278  LBL :RUN:    (77)
+1279  DO    (07)
+1280    AGRAPH 84
+1281    DSE 73
+1282  WHILE    (07)
+1283  ENDDO    (07)
+1284  RTN
       ; LBL :R16:, LBL :R4: 16 and 4 columns of R84 without a loop (a loop takes 3 steps a column)
-1317  LBL :R16:    (79)
-1318  AGRAPH 84
-1319  AGRAPH 84
-1320  AGRAPH 84
-1321  AGRAPH 84
-1322  AGRAPH 84
-1323  AGRAPH 84
-1324  AGRAPH 84
-1325  AGRAPH 84
-1326  AGRAPH 84
-1327  AGRAPH 84
-1328  AGRAPH 84
-1329  AGRAPH 84
-1330  LBL :R4:    (80)
-1331  AGRAPH 84
-1332  AGRAPH 84
-1333  AGRAPH 84
-1334  AGRAPH 84
-1335  RTN
+1285  LBL :R16:    (78)
+1286  AGRAPH 84
+1287  AGRAPH 84
+1288  AGRAPH 84
+1289  AGRAPH 84
+1290  AGRAPH 84
+1291  AGRAPH 84
+1292  AGRAPH 84
+1293  AGRAPH 84
+1294  AGRAPH 84
+1295  AGRAPH 84
+1296  AGRAPH 84
+1297  AGRAPH 84
+1298  LBL :R4:    (79)
+1299  AGRAPH 84
+1300  AGRAPH 84
+1301  AGRAPH 84
+1302  AGRAPH 84
+1303  RTN
       ; ---- LBL :INDS: the indicators R74 (shown: R36): all cleared (GRMOD 2: their pixels off), then each
       ; drawn in GRMOD 2 - 2 x its bit (0: drawn, 2: nothing) ----
-1336  LBL :INDS:    (81)
-1337  RCL 74
-1338  STO 36
-1339  21
-1340  GRFNT
-1341  2
-1342  GRMOD
+1304  LBL :INDS:    (80)
+1305  RCL 74
+1306  STO 36
+1307  21
+1308  GRFNT
+1309  2
+1310  GRMOD
       ; ==== INDOFF (written by the build: every indicator's text at its place)
-1343  "M"
+1311  "M"
+1312  210
+1313  8
+1314  ATEXT Z
+1315  "-"
+1316  210
+1317  24
+1318  ATEXT Z
+1319  "E"
+1320  210
+1321  38
+1322  ATEXT Z
+1323  "COST"
+1324  210
+1325  62
+1326  ATEXT Z
+1327  "SELL"
+1328  210
+1329  104
+1330  ATEXT Z
+1331  "MAR"
+1332  210
+1333  144
+1334  ATEXT Z
+1335  "TAX+"
+1336  210
+1337  180
+1338  ATEXT Z
+1339  "TAX-"
+1340  210
+1341  222
+1342  ATEXT Z
+1343  "TAX"
 1344  210
-1345  8
+1345  262
 1346  ATEXT Z
-1347  "-"
+1347  "RATE"
 1348  210
-1349  24
+1349  296
 1350  ATEXT Z
-1351  "E"
+1351  "SET"
 1352  210
-1353  38
+1353  338
 1354  ATEXT Z
-1355  "COST"
-1356  210
-1357  62
-1358  ATEXT Z
-1359  "SELL"
-1360  210
-1361  104
-1362  ATEXT Z
-1363  "MAR"
-1364  210
-1365  144
-1366  ATEXT Z
-1367  "TAX+"
-1368  210
-1369  180
-1370  ATEXT Z
-1371  "TAX-"
-1372  210
-1373  222
-1374  ATEXT Z
-1375  "TAX"
-1376  210
-1377  262
-1378  ATEXT Z
-1379  "RATE"
-1380  210
-1381  296
-1382  ATEXT Z
-1383  "SET"
-1384  210
-1385  338
-1386  ATEXT Z
       ; ==== INDON (written by the build: each indicator with GRMOD from its bit)
-1387  RCL 74
-1388  1
-1389  ÷
-1390  IP
-1391  2
-1392  MOD
-1393  -2
-1394  ×
-1395  2
-1396  +
-1397  GRMOD
-1398  "M"
-1399  210
-1400  8
-1401  ATEXT Z
-1402  RCL 74
-1403  2
-1404  ÷
-1405  IP
-1406  2
-1407  MOD
-1408  -2
-1409  ×
-1410  2
-1411  +
-1412  GRMOD
-1413  "-"
-1414  210
-1415  24
-1416  ATEXT Z
-1417  RCL 74
-1418  4
-1419  ÷
-1420  IP
-1421  2
-1422  MOD
-1423  -2
-1424  ×
-1425  2
-1426  +
-1427  GRMOD
-1428  "E"
-1429  210
-1430  38
-1431  ATEXT Z
-1432  RCL 74
-1433  8
-1434  ÷
-1435  IP
-1436  2
-1437  MOD
-1438  -2
-1439  ×
-1440  2
-1441  +
-1442  GRMOD
-1443  "COST"
-1444  210
-1445  62
-1446  ATEXT Z
-1447  RCL 74
-1448  16
-1449  ÷
-1450  IP
-1451  2
-1452  MOD
-1453  -2
-1454  ×
-1455  2
-1456  +
-1457  GRMOD
-1458  "SELL"
-1459  210
-1460  104
-1461  ATEXT Z
-1462  RCL 74
-1463  32
-1464  ÷
-1465  IP
-1466  2
-1467  MOD
-1468  -2
-1469  ×
-1470  2
-1471  +
-1472  GRMOD
-1473  "MAR"
-1474  210
-1475  144
-1476  ATEXT Z
-1477  RCL 74
-1478  64
-1479  ÷
-1480  IP
-1481  2
-1482  MOD
-1483  -2
-1484  ×
-1485  2
-1486  +
-1487  GRMOD
-1488  "TAX+"
-1489  210
-1490  180
-1491  ATEXT Z
-1492  RCL 74
-1493  128
-1494  ÷
-1495  IP
-1496  2
-1497  MOD
-1498  -2
-1499  ×
-1500  2
-1501  +
-1502  GRMOD
-1503  "TAX-"
-1504  210
-1505  222
-1506  ATEXT Z
-1507  RCL 74
-1508  256
-1509  ÷
-1510  IP
-1511  2
-1512  MOD
-1513  -2
-1514  ×
-1515  2
-1516  +
-1517  GRMOD
-1518  "TAX"
-1519  210
-1520  262
-1521  ATEXT Z
-1522  RCL 74
-1523  1024
-1524  ÷
-1525  IP
-1526  2
-1527  MOD
-1528  -2
-1529  ×
-1530  2
-1531  +
-1532  GRMOD
-1533  "RATE"
-1534  210
-1535  296
-1536  ATEXT Z
-1537  RCL 74
-1538  512
-1539  ÷
-1540  IP
-1541  2
-1542  MOD
-1543  -2
-1544  ×
-1545  2
-1546  +
-1547  GRMOD
-1548  "SET"
-1549  210
-1550  338
-1551  ATEXT Z
-1552  0
-1553  GRMOD
-1554  RTN
+1355  RCL 74
+1356  1
+1357  ÷
+1358  IP
+1359  2
+1360  MOD
+1361  -2
+1362  ×
+1363  2
+1364  +
+1365  GRMOD
+1366  "M"
+1367  210
+1368  8
+1369  ATEXT Z
+1370  RCL 74
+1371  2
+1372  ÷
+1373  IP
+1374  2
+1375  MOD
+1376  -2
+1377  ×
+1378  2
+1379  +
+1380  GRMOD
+1381  "-"
+1382  210
+1383  24
+1384  ATEXT Z
+1385  RCL 74
+1386  4
+1387  ÷
+1388  IP
+1389  2
+1390  MOD
+1391  -2
+1392  ×
+1393  2
+1394  +
+1395  GRMOD
+1396  "E"
+1397  210
+1398  38
+1399  ATEXT Z
+1400  RCL 74
+1401  8
+1402  ÷
+1403  IP
+1404  2
+1405  MOD
+1406  -2
+1407  ×
+1408  2
+1409  +
+1410  GRMOD
+1411  "COST"
+1412  210
+1413  62
+1414  ATEXT Z
+1415  RCL 74
+1416  16
+1417  ÷
+1418  IP
+1419  2
+1420  MOD
+1421  -2
+1422  ×
+1423  2
+1424  +
+1425  GRMOD
+1426  "SELL"
+1427  210
+1428  104
+1429  ATEXT Z
+1430  RCL 74
+1431  32
+1432  ÷
+1433  IP
+1434  2
+1435  MOD
+1436  -2
+1437  ×
+1438  2
+1439  +
+1440  GRMOD
+1441  "MAR"
+1442  210
+1443  144
+1444  ATEXT Z
+1445  RCL 74
+1446  64
+1447  ÷
+1448  IP
+1449  2
+1450  MOD
+1451  -2
+1452  ×
+1453  2
+1454  +
+1455  GRMOD
+1456  "TAX+"
+1457  210
+1458  180
+1459  ATEXT Z
+1460  RCL 74
+1461  128
+1462  ÷
+1463  IP
+1464  2
+1465  MOD
+1466  -2
+1467  ×
+1468  2
+1469  +
+1470  GRMOD
+1471  "TAX-"
+1472  210
+1473  222
+1474  ATEXT Z
+1475  RCL 74
+1476  256
+1477  ÷
+1478  IP
+1479  2
+1480  MOD
+1481  -2
+1482  ×
+1483  2
+1484  +
+1485  GRMOD
+1486  "TAX"
+1487  210
+1488  262
+1489  ATEXT Z
+1490  RCL 74
+1491  1024
+1492  ÷
+1493  IP
+1494  2
+1495  MOD
+1496  -2
+1497  ×
+1498  2
+1499  +
+1500  GRMOD
+1501  "RATE"
+1502  210
+1503  296
+1504  ATEXT Z
+1505  RCL 74
+1506  512
+1507  ÷
+1508  IP
+1509  2
+1510  MOD
+1511  -2
+1512  ×
+1513  2
+1514  +
+1515  GRMOD
+1516  "SET"
+1517  210
+1518  338
+1519  ATEXT Z
+1520  0
+1521  GRMOD
+1522  RTN
       ; ---- LBL :HL: the key at column Z, row Y, X key rows high: the key shown before inverted again
       ; (LBL :HLX:: back), then this one (R87 x, R88 row, R89 the height) ----
-1555  LBL :HL:    (84)
-1556  STO 76
-1557  R↓
-1558  29
-1559  ×
-1560  1
-1561  +
-1562  STO 77
-1563  R↓
-1564  66
-1565  ×
-1566  3
-1567  +
-1568  STO 78
-1569  XEQ :HLX:    (97)
-1570  RCL 76
-1571  STO 89
-1572  RCL 77
-1573  STO 88
-1574  RCL 78
-1575  STO 87
-1576  XEQ :HLX:    (97)
-1577  RTN
+1523  LBL :HL:    (81)
+1524  STO 76
+1525  R↓
+1526  29
+1527  ×
+1528  1
+1529  +
+1530  STO 77
+1531  R↓
+1532  66
+1533  ×
+1534  3
+1535  +
+1536  STO 78
+1537  XEQ :HLX:    (84)
+1538  RCL 76
+1539  STO 89
+1540  RCL 77
+1541  STO 88
+1542  RCL 78
+1543  STO 87
+1544  XEQ :HLX:    (84)
+1545  RTN
       ; LBL :HLX: the inside of the key R87, R88, R89 inverted (GRMOD 3: XOR): 60 columns (3 x 16 + 3 x 4) of R90 (23 ones)
       ; or R91 (52 ones, the + key) from the row + 1; none when R89 = 0
-1578  LBL :HLX:    (97)
-1579  RCL 89
-1580  X=0?
-1581  RTN
-1582  89
-1583  +
-1584  STO 84
-1585  RCL IND 84
-1586  SINT
-1587  STO 84
-1588  3
-1589  GRMOD
-1590  RCL 88
-1591  1
-1592  +
-1593  RCL 87
-1594  1
-1595  +
-1596  XEQ :R16:    (79)
-1597  XEQ :R16:    (79)
-1598  XEQ :R16:    (79)
-1599  XEQ :R4:    (80)
-1600  XEQ :R4:    (80)
-1601  XEQ :R4:    (80)
-1602  0
-1603  GRMOD
-1604  RTN
+1546  LBL :HLX:    (84)
+1547  RCL 89
+1548  X=0?
+1549  RTN
+1550  89
+1551  +
+1552  STO 84
+1553  RCL IND 84
+1554  SINT
+1555  STO 84
+1556  3
+1557  GRMOD
+1558  RCL 88
+1559  1
+1560  +
+1561  RCL 87
+1562  1
+1563  +
+1564  XEQ :R16:    (78)
+1565  XEQ :R16:    (78)
+1566  XEQ :R16:    (78)
+1567  XEQ :R4:    (79)
+1568  XEQ :R4:    (79)
+1569  XEQ :R4:    (79)
+1570  0
+1571  GRMOD
+1572  RTN
       ; ---- LBL :INIT: the start: MHTAX and MHMEM, the words, the screen (the Casio), all cleared ----
-1605  LBL :INIT:    (98)
-1606  WSIZE 64
-      ; the clock now, for the standby check (LBL :WAKE:)
-1607  Date→ⅅ
-1608  Time→ℸ
-1609  ⅅℸ→J
-1610  STO 82
-1611  0
-1612  STO+ "MHTAX"
-1613  STO+ "MHMEM"
-1614  RCL "MHTAX"
-1615  STO 32
-1616  RCL "MHMEM"
-1617  STO 31
-1618  10000000000
-1619  STO 79
+1573  LBL :INIT:    (97)
+1574  WSIZE 64
+1575  0
+1576  STO+ "MHTAX"
+1577  STO+ "MHMEM"
+1578  RCL "MHTAX"
+1579  STO 32
+1580  RCL "MHMEM"
+1581  STO 31
+1582  10000000000
+1583  STO 79
       ; ==== WORDS (written by the build: R80 the point, R81 the thousands mark, R90 23 ones, R91 52 ones)
-1620  960
-1621  STO 80
-1622  17996806323437568
-1623  STO 81
-1624  8388607
-1625  STO 90
-1626  4503599627370495
-1627  STO 91
-1628  "/11/12/13/14/15/16/21/22/23/24/25/26/41/43/45/52/53/54/55/62/63/64/65/72/73/74/75/82/83/85/"
-1629  STO 85
+1584  960
+1585  STO 80
+1586  17996806323437568
+1587  STO 81
+1588  8388607
+1589  STO 90
+1590  4503599627370495
+1591  STO 91
+1592  "/11/12/13/14/15/16/21/22/23/24/25/26/41/43/45/52/53/54/55/62/63/64/65/72/73/74/75/82/83/85/"
+1593  STO 85
       ; nothing shown yet (-1): every cell, mark and indicator drawn the first time; no key inverted
-1630  -1
-1631  STO 36
-1632  STO 50
-1633  STO 51
-1634  STO 52
-1635  STO 53
-1636  STO 54
-1637  STO 55
-1638  STO 56
-1639  STO 57
-1640  STO 58
-1641  STO 59
-1642  STO 60
-1643  STO 61
-1644  STO 62
-1645  STO 63
-1646  STO 64
-1647  STO 65
-1648  STO 66
-1649  STO 67
-1650  STO 68
-1651  STO 69
-1652  0
-1653  STO 89
+1594  -1
+1595  STO 36
+1596  STO 50
+1597  STO 51
+1598  STO 52
+1599  STO 53
+1600  STO 54
+1601  STO 55
+1602  STO 56
+1603  STO 57
+1604  STO 58
+1605  STO 59
+1606  STO 60
+1607  STO 61
+1608  STO 62
+1609  STO 63
+1610  STO 64
+1611  STO 65
+1612  STO 66
+1613  STO 67
+1614  STO 68
+1615  STO 69
+1616  0
+1617  STO 89
       ; all ten cells looked at the first time; R45, R46 of no value
-1654  10
-1655  STO 49
-1656  -1E20
-1657  STO 86
-1658  CLLCD
-1659  0
-1660  GRMOD
+1618  10
+1619  STO 49
+1620  -1E20
+1621  STO 86
+1622  CLLCD
+1623  0
+1624  GRMOD
       ; ==== STATIC (written by the build: the title, the LCD frame, the keys and their names)
-1661  10
-1662  GRFNT
-1663  "DESK CALCULATOR"
-1664  232
-1665  6
-1666  ATEXT Z
-1667  "10 DIGITS"
-1668  232
-1669  340
-1670  ATEXT Z
-1671  0
-1672  GRMOD
-1673  1
-1674  0
-1675  DROP
-1676  3
-1677  17879290519603904510
-1678  SINT
-1679  STO 84
-1680  DROP
-1681  AGRAPH 84
-1682  297237575960100865
-1683  SINT
-1684  STO 84
-1685  DROP
-1686  XEQ :R16:    (79)
-1687  XEQ :R16:    (79)
-1688  XEQ :R16:    (79)
-1689  XEQ :R4:    (80)
-1690  XEQ :R4:    (80)
-1691  XEQ :R4:    (80)
-1692  17879290519603904510
-1693  SINT
-1694  STO 84
-1695  DROP
-1696  AGRAPH 84
-1697  DROP
-1698  69
-1699  17879290519603904510
-1700  SINT
-1701  STO 84
-1702  DROP
-1703  AGRAPH 84
-1704  297237575960100865
-1705  SINT
-1706  STO 84
-1707  DROP
-1708  XEQ :R16:    (79)
-1709  XEQ :R16:    (79)
-1710  XEQ :R16:    (79)
-1711  XEQ :R4:    (80)
-1712  XEQ :R4:    (80)
-1713  XEQ :R4:    (80)
-1714  17879290519603904510
-1715  SINT
-1716  STO 84
-1717  DROP
-1718  AGRAPH 84
-1719  DROP
-1720  135
-1721  17879290519603904510
-1722  SINT
-1723  STO 84
-1724  DROP
-1725  AGRAPH 84
-1726  297237575960100865
-1727  SINT
-1728  STO 84
-1729  DROP
-1730  XEQ :R16:    (79)
-1731  XEQ :R16:    (79)
-1732  XEQ :R16:    (79)
-1733  XEQ :R4:    (80)
-1734  XEQ :R4:    (80)
-1735  XEQ :R4:    (80)
-1736  17879290519603904510
-1737  SINT
-1738  STO 84
-1739  DROP
-1740  AGRAPH 84
-1741  DROP
-1742  201
-1743  17879290519603904510
-1744  SINT
-1745  STO 84
-1746  DROP
-1747  AGRAPH 84
-1748  297237575960100865
-1749  SINT
-1750  STO 84
-1751  DROP
-1752  XEQ :R16:    (79)
-1753  XEQ :R16:    (79)
-1754  XEQ :R16:    (79)
-1755  XEQ :R4:    (80)
-1756  XEQ :R4:    (80)
-1757  XEQ :R4:    (80)
-1758  17879290519603904510
-1759  SINT
-1760  STO 84
-1761  DROP
-1762  AGRAPH 84
-1763  DROP
-1764  267
-1765  17879290520660869118
-1766  SINT
-1767  STO 84
-1768  DROP
-1769  AGRAPH 84
-1770  297237575406452737
-1771  SINT
-1772  STO 84
+1625  10
+1626  GRFNT
+1627  "DESK CALCULATOR"
+1628  232
+1629  6
+1630  ATEXT Z
+1631  "10 DIGITS"
+1632  232
+1633  340
+1634  ATEXT Z
+1635  0
+1636  GRMOD
+1637  1
+1638  0
+1639  DROP
+1640  3
+1641  17879290519603904510
+1642  SINT
+1643  STO 84
+1644  DROP
+1645  AGRAPH 84
+1646  297237575960100865
+1647  SINT
+1648  STO 84
+1649  DROP
+1650  XEQ :R16:    (78)
+1651  XEQ :R16:    (78)
+1652  XEQ :R16:    (78)
+1653  XEQ :R4:    (79)
+1654  XEQ :R4:    (79)
+1655  XEQ :R4:    (79)
+1656  17879290519603904510
+1657  SINT
+1658  STO 84
+1659  DROP
+1660  AGRAPH 84
+1661  DROP
+1662  69
+1663  17879290519603904510
+1664  SINT
+1665  STO 84
+1666  DROP
+1667  AGRAPH 84
+1668  297237575960100865
+1669  SINT
+1670  STO 84
+1671  DROP
+1672  XEQ :R16:    (78)
+1673  XEQ :R16:    (78)
+1674  XEQ :R16:    (78)
+1675  XEQ :R4:    (79)
+1676  XEQ :R4:    (79)
+1677  XEQ :R4:    (79)
+1678  17879290519603904510
+1679  SINT
+1680  STO 84
+1681  DROP
+1682  AGRAPH 84
+1683  DROP
+1684  135
+1685  17879290519603904510
+1686  SINT
+1687  STO 84
+1688  DROP
+1689  AGRAPH 84
+1690  297237575960100865
+1691  SINT
+1692  STO 84
+1693  DROP
+1694  XEQ :R16:    (78)
+1695  XEQ :R16:    (78)
+1696  XEQ :R16:    (78)
+1697  XEQ :R4:    (79)
+1698  XEQ :R4:    (79)
+1699  XEQ :R4:    (79)
+1700  17879290519603904510
+1701  SINT
+1702  STO 84
+1703  DROP
+1704  AGRAPH 84
+1705  DROP
+1706  201
+1707  17879290519603904510
+1708  SINT
+1709  STO 84
+1710  DROP
+1711  AGRAPH 84
+1712  297237575960100865
+1713  SINT
+1714  STO 84
+1715  DROP
+1716  XEQ :R16:    (78)
+1717  XEQ :R16:    (78)
+1718  XEQ :R16:    (78)
+1719  XEQ :R4:    (79)
+1720  XEQ :R4:    (79)
+1721  XEQ :R4:    (79)
+1722  17879290519603904510
+1723  SINT
+1724  STO 84
+1725  DROP
+1726  AGRAPH 84
+1727  DROP
+1728  267
+1729  17879290520660869118
+1730  SINT
+1731  STO 84
+1732  DROP
+1733  AGRAPH 84
+1734  297237575406452737
+1735  SINT
+1736  STO 84
+1737  DROP
+1738  XEQ :R16:    (78)
+1739  XEQ :R16:    (78)
+1740  XEQ :R16:    (78)
+1741  XEQ :R4:    (79)
+1742  XEQ :R4:    (79)
+1743  XEQ :R4:    (79)
+1744  17879290520660869118
+1745  SINT
+1746  STO 84
+1747  DROP
+1748  AGRAPH 84
+1749  DROP
+1750  333
+1751  17879290519603904510
+1752  SINT
+1753  STO 84
+1754  DROP
+1755  AGRAPH 84
+1756  297237575960100865
+1757  SINT
+1758  STO 84
+1759  DROP
+1760  XEQ :R16:    (78)
+1761  XEQ :R16:    (78)
+1762  XEQ :R16:    (78)
+1763  XEQ :R4:    (79)
+1764  XEQ :R4:    (79)
+1765  XEQ :R4:    (79)
+1766  17879290519603904510
+1767  SINT
+1768  STO 84
+1769  DROP
+1770  AGRAPH 84
+1771  65
+1772  0
 1773  DROP
-1774  XEQ :R16:    (79)
-1775  XEQ :R16:    (79)
-1776  XEQ :R16:    (79)
-1777  XEQ :R4:    (80)
-1778  XEQ :R4:    (80)
-1779  XEQ :R4:    (80)
-1780  17879290520660869118
+1774  3
+1775  18437877611926650879
+1776  SINT
+1777  STO 84
+1778  DROP
+1779  AGRAPH 84
+1780  4644337124376576
 1781  SINT
 1782  STO 84
 1783  DROP
-1784  AGRAPH 84
-1785  DROP
-1786  333
-1787  17879290519603904510
-1788  SINT
-1789  STO 84
-1790  DROP
-1791  AGRAPH 84
-1792  297237575960100865
-1793  SINT
-1794  STO 84
+1784  XEQ :R16:    (78)
+1785  XEQ :R16:    (78)
+1786  XEQ :R16:    (78)
+1787  XEQ :R4:    (79)
+1788  XEQ :R4:    (79)
+1789  XEQ :R4:    (79)
+1790  18437877611926650879
+1791  SINT
+1792  STO 84
+1793  DROP
+1794  AGRAPH 84
 1795  DROP
-1796  XEQ :R16:    (79)
-1797  XEQ :R16:    (79)
-1798  XEQ :R16:    (79)
-1799  XEQ :R4:    (80)
-1800  XEQ :R4:    (80)
-1801  XEQ :R4:    (80)
-1802  17879290519603904510
+1796  69
+1797  18437877611926650879
+1798  SINT
+1799  STO 84
+1800  DROP
+1801  AGRAPH 84
+1802  4644337124376576
 1803  SINT
 1804  STO 84
 1805  DROP
-1806  AGRAPH 84
-1807  65
-1808  0
-1809  DROP
-1810  3
-1811  18437877611926650879
-1812  SINT
-1813  STO 84
-1814  DROP
-1815  AGRAPH 84
-1816  4644337124376576
-1817  SINT
-1818  STO 84
-1819  DROP
-1820  XEQ :R16:    (79)
-1821  XEQ :R16:    (79)
-1822  XEQ :R16:    (79)
-1823  XEQ :R4:    (80)
-1824  XEQ :R4:    (80)
-1825  XEQ :R4:    (80)
-1826  18437877611926650879
-1827  SINT
-1828  STO 84
-1829  DROP
-1830  AGRAPH 84
-1831  DROP
-1832  69
-1833  18437877611926650879
-1834  SINT
-1835  STO 84
-1836  DROP
-1837  AGRAPH 84
-1838  4644337124376576
-1839  SINT
-1840  STO 84
-1841  DROP
-1842  XEQ :R16:    (79)
-1843  XEQ :R16:    (79)
-1844  XEQ :R16:    (79)
-1845  XEQ :R4:    (80)
-1846  XEQ :R4:    (80)
-1847  XEQ :R4:    (80)
-1848  18437877611926650879
-1849  SINT
-1850  STO 84
-1851  DROP
-1852  AGRAPH 84
-1853  DROP
-1854  135
-1855  18437877611926650879
-1856  SINT
-1857  STO 84
-1858  DROP
-1859  AGRAPH 84
-1860  4644337124376576
-1861  SINT
-1862  STO 84
-1863  DROP
-1864  XEQ :R16:    (79)
-1865  XEQ :R16:    (79)
-1866  XEQ :R16:    (79)
-1867  XEQ :R4:    (80)
-1868  XEQ :R4:    (80)
-1869  XEQ :R4:    (80)
-1870  18437877611926650879
-1871  SINT
-1872  STO 84
-1873  DROP
-1874  AGRAPH 84
-1875  DROP
-1876  201
-1877  18437877611926650879
-1878  SINT
-1879  STO 84
-1880  DROP
-1881  AGRAPH 84
-1882  4644337124376576
-1883  SINT
-1884  STO 84
-1885  DROP
-1886  XEQ :R16:    (79)
-1887  XEQ :R16:    (79)
-1888  XEQ :R16:    (79)
-1889  XEQ :R4:    (80)
-1890  XEQ :R4:    (80)
-1891  XEQ :R4:    (80)
-1892  18437877611926650879
-1893  SINT
-1894  STO 84
-1895  DROP
-1896  AGRAPH 84
-1897  DROP
-1898  267
-1899  18437877611926650879
-1900  SINT
-1901  STO 84
-1902  DROP
-1903  AGRAPH 84
-1904  4644337124376576
-1905  SINT
-1906  STO 84
+1806  XEQ :R16:    (78)
+1807  XEQ :R16:    (78)
+1808  XEQ :R16:    (78)
+1809  XEQ :R4:    (79)
+1810  XEQ :R4:    (79)
+1811  XEQ :R4:    (79)
+1812  18437877611926650879
+1813  SINT
+1814  STO 84
+1815  DROP
+1816  AGRAPH 84
+1817  DROP
+1818  135
+1819  18437877611926650879
+1820  SINT
+1821  STO 84
+1822  DROP
+1823  AGRAPH 84
+1824  4644337124376576
+1825  SINT
+1826  STO 84
+1827  DROP
+1828  XEQ :R16:    (78)
+1829  XEQ :R16:    (78)
+1830  XEQ :R16:    (78)
+1831  XEQ :R4:    (79)
+1832  XEQ :R4:    (79)
+1833  XEQ :R4:    (79)
+1834  18437877611926650879
+1835  SINT
+1836  STO 84
+1837  DROP
+1838  AGRAPH 84
+1839  DROP
+1840  201
+1841  18437877611926650879
+1842  SINT
+1843  STO 84
+1844  DROP
+1845  AGRAPH 84
+1846  4644337124376576
+1847  SINT
+1848  STO 84
+1849  DROP
+1850  XEQ :R16:    (78)
+1851  XEQ :R16:    (78)
+1852  XEQ :R16:    (78)
+1853  XEQ :R4:    (79)
+1854  XEQ :R4:    (79)
+1855  XEQ :R4:    (79)
+1856  18437877611926650879
+1857  SINT
+1858  STO 84
+1859  DROP
+1860  AGRAPH 84
+1861  DROP
+1862  267
+1863  18437877611926650879
+1864  SINT
+1865  STO 84
+1866  DROP
+1867  AGRAPH 84
+1868  4644337124376576
+1869  SINT
+1870  STO 84
+1871  DROP
+1872  XEQ :R16:    (78)
+1873  XEQ :R16:    (78)
+1874  XEQ :R16:    (78)
+1875  XEQ :R4:    (79)
+1876  XEQ :R4:    (79)
+1877  XEQ :R4:    (79)
+1878  18437877611926650879
+1879  SINT
+1880  STO 84
+1881  DROP
+1882  AGRAPH 84
+1883  DROP
+1884  333
+1885  18437877611926650879
+1886  SINT
+1887  STO 84
+1888  DROP
+1889  AGRAPH 84
+1890  4644337124376576
+1891  SINT
+1892  STO 84
+1893  DROP
+1894  XEQ :R16:    (78)
+1895  XEQ :R16:    (78)
+1896  XEQ :R16:    (78)
+1897  XEQ :R4:    (79)
+1898  XEQ :R4:    (79)
+1899  XEQ :R4:    (79)
+1900  18437877611926650879
+1901  SINT
+1902  STO 84
+1903  DROP
+1904  AGRAPH 84
+1905  129
+1906  0
 1907  DROP
-1908  XEQ :R16:    (79)
-1909  XEQ :R16:    (79)
-1910  XEQ :R16:    (79)
-1911  XEQ :R4:    (80)
-1912  XEQ :R4:    (80)
-1913  XEQ :R4:    (80)
-1914  18437877611926650879
+1908  3
+1909  4095
+1910  SINT
+1911  STO 84
+1912  DROP
+1913  AGRAPH 84
+1914  18446744073709522944
 1915  SINT
 1916  STO 84
 1917  DROP
 1918  AGRAPH 84
-1919  DROP
-1920  333
-1921  18437877611926650879
-1922  SINT
-1923  STO 84
-1924  DROP
-1925  AGRAPH 84
-1926  4644337124376576
-1927  SINT
-1928  STO 84
-1929  DROP
-1930  XEQ :R16:    (79)
-1931  XEQ :R16:    (79)
-1932  XEQ :R16:    (79)
-1933  XEQ :R4:    (80)
-1934  XEQ :R4:    (80)
-1935  XEQ :R4:    (80)
-1936  18437877611926650879
-1937  SINT
-1938  STO 84
-1939  DROP
-1940  AGRAPH 84
-1941  129
-1942  0
-1943  DROP
-1944  3
-1945  4095
-1946  SINT
-1947  STO 84
-1948  DROP
-1949  AGRAPH 84
-1950  18446744073709522944
-1951  SINT
-1952  STO 84
-1953  DROP
-1954  AGRAPH 84
-1955  36864
-1956  SINT
-1957  STO 84
-1958  DROP
-1959  XEQ :R16:    (79)
-1960  XEQ :R16:    (79)
-1961  XEQ :R16:    (79)
-1962  XEQ :R4:    (80)
-1963  XEQ :R4:    (80)
-1964  3
-1965  STO 73
-1966  DROP
-1967  XEQ :RUN:    (78)
-1968  36863
-1969  SINT
-1970  STO 84
-1971  DROP
-1972  AGRAPH 84
-1973  32768
-1974  SINT
-1975  STO 84
-1976  DROP
-1977  XEQ :R4:    (80)
-1978  36863
-1979  SINT
-1980  STO 84
-1981  DROP
-1982  AGRAPH 84
-1983  36864
-1984  SINT
-1985  STO 84
-1986  DROP
-1987  XEQ :R16:    (79)
-1988  XEQ :R16:    (79)
-1989  XEQ :R16:    (79)
-1990  XEQ :R4:    (80)
-1991  XEQ :R4:    (80)
-1992  XEQ :R4:    (80)
-1993  36863
-1994  SINT
-1995  STO 84
-1996  DROP
-1997  AGRAPH 84
-1998  32768
-1999  SINT
-2000  STO 84
-2001  DROP
-2002  XEQ :R4:    (80)
-2003  36863
-2004  SINT
-2005  STO 84
-2006  DROP
-2007  AGRAPH 84
-2008  36864
-2009  SINT
-2010  STO 84
-2011  DROP
-2012  XEQ :R16:    (79)
-2013  XEQ :R16:    (79)
-2014  XEQ :R16:    (79)
-2015  XEQ :R4:    (80)
-2016  XEQ :R4:    (80)
-2017  XEQ :R4:    (80)
-2018  36863
-2019  SINT
-2020  STO 84
-2021  DROP
-2022  AGRAPH 84
-2023  32768
-2024  SINT
-2025  STO 84
-2026  DROP
-2027  XEQ :R4:    (80)
-2028  36863
-2029  SINT
-2030  STO 84
-2031  DROP
-2032  AGRAPH 84
-2033  36864
-2034  SINT
-2035  STO 84
-2036  DROP
-2037  XEQ :R16:    (79)
-2038  XEQ :R16:    (79)
-2039  XEQ :R16:    (79)
-2040  XEQ :R4:    (80)
-2041  XEQ :R4:    (80)
-2042  XEQ :R4:    (80)
-2043  36863
-2044  SINT
-2045  STO 84
-2046  DROP
-2047  AGRAPH 84
-2048  32768
-2049  SINT
-2050  STO 84
-2051  DROP
-2052  XEQ :R4:    (80)
-2053  36863
-2054  SINT
-2055  STO 84
-2056  DROP
-2057  AGRAPH 84
-2058  36864
-2059  SINT
-2060  STO 84
-2061  DROP
-2062  XEQ :R16:    (79)
-2063  XEQ :R16:    (79)
-2064  XEQ :R16:    (79)
-2065  XEQ :R4:    (80)
-2066  XEQ :R4:    (80)
-2067  XEQ :R4:    (80)
-2068  36863
-2069  SINT
-2070  STO 84
-2071  DROP
-2072  AGRAPH 84
-2073  32768
-2074  SINT
-2075  STO 84
-2076  DROP
-2077  XEQ :R4:    (80)
-2078  36863
-2079  SINT
-2080  STO 84
-2081  DROP
-2082  AGRAPH 84
-2083  36864
-2084  SINT
-2085  STO 84
-2086  DROP
-2087  XEQ :R16:    (79)
-2088  XEQ :R16:    (79)
-2089  XEQ :R16:    (79)
-2090  XEQ :R4:    (80)
-2091  XEQ :R4:    (80)
-2092  XEQ :R4:    (80)
-2093  36863
-2094  SINT
-2095  STO 84
-2096  DROP
-2097  AGRAPH 84
-2098  18446744073709518848
-2099  SINT
-2100  STO 84
-2101  DROP
-2102  AGRAPH 84
-2103  193
-2104  0
-2105  DROP
-2106  4
-2107  549755813887
-2108  SINT
-2109  STO 84
-2110  DROP
-2111  AGRAPH 84
-2112  274877906944
-2113  SINT
-2114  STO 84
-2115  DROP
-2116  XEQ :R16:    (79)
-2117  XEQ :R16:    (79)
-2118  XEQ :R16:    (79)
-2119  XEQ :R16:    (79)
-2120  XEQ :R16:    (79)
-2121  XEQ :R16:    (79)
-2122  XEQ :R16:    (79)
-2123  XEQ :R16:    (79)
-2124  XEQ :R16:    (79)
-2125  XEQ :R16:    (79)
-2126  XEQ :R16:    (79)
-2127  XEQ :R16:    (79)
-2128  XEQ :R16:    (79)
-2129  XEQ :R16:    (79)
-2130  XEQ :R16:    (79)
-2131  XEQ :R16:    (79)
-2132  XEQ :R16:    (79)
-2133  XEQ :R16:    (79)
-2134  XEQ :R16:    (79)
-2135  XEQ :R16:    (79)
-2136  XEQ :R16:    (79)
-2137  XEQ :R16:    (79)
-2138  XEQ :R16:    (79)
-2139  XEQ :R16:    (79)
-2140  XEQ :R4:    (80)
-2141  2
-2142  STO 73
-2143  DROP
-2144  XEQ :RUN:    (78)
-2145  549755813887
-2146  SINT
-2147  STO 84
-2148  DROP
-2149  AGRAPH 84
-2150  21
-2151  GRFNT
-2152  "COST"
-2153  119
-2154  16
+1919  36864
+1920  SINT
+1921  STO 84
+1922  DROP
+1923  XEQ :R16:    (78)
+1924  XEQ :R16:    (78)
+1925  XEQ :R16:    (78)
+1926  XEQ :R4:    (79)
+1927  XEQ :R4:    (79)
+1928  3
+1929  STO 73
+1930  DROP
+1931  XEQ :RUN:    (77)
+1932  36863
+1933  SINT
+1934  STO 84
+1935  DROP
+1936  AGRAPH 84
+1937  32768
+1938  SINT
+1939  STO 84
+1940  DROP
+1941  XEQ :R4:    (79)
+1942  36863
+1943  SINT
+1944  STO 84
+1945  DROP
+1946  AGRAPH 84
+1947  36864
+1948  SINT
+1949  STO 84
+1950  DROP
+1951  XEQ :R16:    (78)
+1952  XEQ :R16:    (78)
+1953  XEQ :R16:    (78)
+1954  XEQ :R4:    (79)
+1955  XEQ :R4:    (79)
+1956  XEQ :R4:    (79)
+1957  36863
+1958  SINT
+1959  STO 84
+1960  DROP
+1961  AGRAPH 84
+1962  32768
+1963  SINT
+1964  STO 84
+1965  DROP
+1966  XEQ :R4:    (79)
+1967  36863
+1968  SINT
+1969  STO 84
+1970  DROP
+1971  AGRAPH 84
+1972  36864
+1973  SINT
+1974  STO 84
+1975  DROP
+1976  XEQ :R16:    (78)
+1977  XEQ :R16:    (78)
+1978  XEQ :R16:    (78)
+1979  XEQ :R4:    (79)
+1980  XEQ :R4:    (79)
+1981  XEQ :R4:    (79)
+1982  36863
+1983  SINT
+1984  STO 84
+1985  DROP
+1986  AGRAPH 84
+1987  32768
+1988  SINT
+1989  STO 84
+1990  DROP
+1991  XEQ :R4:    (79)
+1992  36863
+1993  SINT
+1994  STO 84
+1995  DROP
+1996  AGRAPH 84
+1997  36864
+1998  SINT
+1999  STO 84
+2000  DROP
+2001  XEQ :R16:    (78)
+2002  XEQ :R16:    (78)
+2003  XEQ :R16:    (78)
+2004  XEQ :R4:    (79)
+2005  XEQ :R4:    (79)
+2006  XEQ :R4:    (79)
+2007  36863
+2008  SINT
+2009  STO 84
+2010  DROP
+2011  AGRAPH 84
+2012  32768
+2013  SINT
+2014  STO 84
+2015  DROP
+2016  XEQ :R4:    (79)
+2017  36863
+2018  SINT
+2019  STO 84
+2020  DROP
+2021  AGRAPH 84
+2022  36864
+2023  SINT
+2024  STO 84
+2025  DROP
+2026  XEQ :R16:    (78)
+2027  XEQ :R16:    (78)
+2028  XEQ :R16:    (78)
+2029  XEQ :R4:    (79)
+2030  XEQ :R4:    (79)
+2031  XEQ :R4:    (79)
+2032  36863
+2033  SINT
+2034  STO 84
+2035  DROP
+2036  AGRAPH 84
+2037  32768
+2038  SINT
+2039  STO 84
+2040  DROP
+2041  XEQ :R4:    (79)
+2042  36863
+2043  SINT
+2044  STO 84
+2045  DROP
+2046  AGRAPH 84
+2047  36864
+2048  SINT
+2049  STO 84
+2050  DROP
+2051  XEQ :R16:    (78)
+2052  XEQ :R16:    (78)
+2053  XEQ :R16:    (78)
+2054  XEQ :R4:    (79)
+2055  XEQ :R4:    (79)
+2056  XEQ :R4:    (79)
+2057  36863
+2058  SINT
+2059  STO 84
+2060  DROP
+2061  AGRAPH 84
+2062  18446744073709518848
+2063  SINT
+2064  STO 84
+2065  DROP
+2066  AGRAPH 84
+2067  193
+2068  0
+2069  DROP
+2070  4
+2071  549755813887
+2072  SINT
+2073  STO 84
+2074  DROP
+2075  AGRAPH 84
+2076  274877906944
+2077  SINT
+2078  STO 84
+2079  DROP
+2080  XEQ :R16:    (78)
+2081  XEQ :R16:    (78)
+2082  XEQ :R16:    (78)
+2083  XEQ :R16:    (78)
+2084  XEQ :R16:    (78)
+2085  XEQ :R16:    (78)
+2086  XEQ :R16:    (78)
+2087  XEQ :R16:    (78)
+2088  XEQ :R16:    (78)
+2089  XEQ :R16:    (78)
+2090  XEQ :R16:    (78)
+2091  XEQ :R16:    (78)
+2092  XEQ :R16:    (78)
+2093  XEQ :R16:    (78)
+2094  XEQ :R16:    (78)
+2095  XEQ :R16:    (78)
+2096  XEQ :R16:    (78)
+2097  XEQ :R16:    (78)
+2098  XEQ :R16:    (78)
+2099  XEQ :R16:    (78)
+2100  XEQ :R16:    (78)
+2101  XEQ :R16:    (78)
+2102  XEQ :R16:    (78)
+2103  XEQ :R16:    (78)
+2104  XEQ :R4:    (79)
+2105  2
+2106  STO 73
+2107  DROP
+2108  XEQ :RUN:    (77)
+2109  549755813887
+2110  SINT
+2111  STO 84
+2112  DROP
+2113  AGRAPH 84
+2114  21
+2115  GRFNT
+2116  "COST"
+2117  119
+2118  16
+2119  ATEXT Z
+2120  "SELL"
+2121  119
+2122  83
+2123  ATEXT Z
+2124  "MAR"
+2125  119
+2126  151
+2127  ATEXT Z
+2128  "%"
+2129  119
+2130  226
+2131  ATEXT Z
+2132  "TAX-"
+2133  119
+2134  280
+2135  ATEXT Z
+2136  "TAX+"
+2137  119
+2138  345
+2139  ATEXT Z
+2140  "+/-"
+2141  90
+2142  22
+2143  ATEXT Z
+2144  "7"
+2145  90
+2146  96
+2147  ATEXT Z
+2148  "8"
+2149  90
+2150  162
+2151  ATEXT Z
+2152  "9"
+2153  90
+2154  228
 2155  ATEXT Z
-2156  "SELL"
-2157  119
-2158  83
+2156  "×"
+2157  91
+2158  294
 2159  ATEXT Z
-2160  "MAR"
-2161  119
-2162  151
+2160  "÷"
+2161  90
+2162  360
 2163  ATEXT Z
-2164  "%"
-2165  119
-2166  226
+2164  "▶"
+2165  61
+2166  28
 2167  ATEXT Z
-2168  "TAX-"
-2169  119
-2170  280
+2168  "4"
+2169  61
+2170  96
 2171  ATEXT Z
-2172  "TAX+"
-2173  119
-2174  345
+2172  "5"
+2173  61
+2174  162
 2175  ATEXT Z
-2176  "+/-"
-2177  90
-2178  22
+2176  "6"
+2177  61
+2178  228
 2179  ATEXT Z
-2180  "7"
-2181  90
-2182  96
+2180  "-"
+2181  61
+2182  294
 2183  ATEXT Z
-2184  "8"
-2185  90
-2186  162
+2184  "MRC"
+2185  61
+2186  349
 2187  ATEXT Z
-2188  "9"
-2189  90
-2190  228
+2188  "C"
+2189  32
+2190  29
 2191  ATEXT Z
-2192  "×"
-2193  91
-2194  294
+2192  "1"
+2193  32
+2194  96
 2195  ATEXT Z
-2196  "÷"
-2197  90
-2198  360
+2196  "2"
+2197  32
+2198  162
 2199  ATEXT Z
-2200  "▶"
-2201  61
-2202  28
+2200  "3"
+2201  32
+2202  228
 2203  ATEXT Z
-2204  "4"
-2205  61
-2206  96
+2204  "+"
+2205  18
+2206  293
 2207  ATEXT Z
-2208  "5"
-2209  61
-2210  162
+2208  "M-"
+2209  32
+2210  355
 2211  ATEXT Z
-2212  "6"
-2213  61
-2214  228
+2212  "AC"
+2213  3
+2214  24
 2215  ATEXT Z
-2216  "-"
-2217  61
-2218  294
+2216  "0"
+2217  3
+2218  96
 2219  ATEXT Z
-2220  "MRC"
-2221  61
-2222  349
+2220  "."
+2221  8
+2222  164
 2223  ATEXT Z
-2224  "C"
-2225  32
-2226  29
+2224  "="
+2225  3
+2226  226
 2227  ATEXT Z
-2228  "1"
-2229  32
-2230  96
+2228  "M+"
+2229  3
+2230  354
 2231  ATEXT Z
-2232  "2"
-2233  32
-2234  162
-2235  ATEXT Z
-2236  "3"
-2237  32
-2238  228
-2239  ATEXT Z
-2240  "+"
-2241  18
-2242  293
-2243  ATEXT Z
-2244  "M-"
-2245  32
-2246  355
-2247  ATEXT Z
-2248  "AC"
-2249  3
-2250  24
-2251  ATEXT Z
-2252  "0"
-2253  3
-2254  96
-2255  ATEXT Z
-2256  "."
-2257  8
-2258  164
-2259  ATEXT Z
-2260  "="
-2261  3
-2262  226
-2263  ATEXT Z
-2264  "M+"
-2265  3
-2266  354
-2267  ATEXT Z
-2268  XEQ :AC0:    (51)
-2269  XEQ :SHOW:    (67)
-2270  RTN
-2271  END
+2232  XEQ :AC0:    (50)
+2233  XEQ :SHOW:    (66)
+2234  RTN
+2235  END

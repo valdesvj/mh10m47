@@ -46,7 +46,6 @@ def run(keys, tax=None, mem=None, stack=None, prog=PROG):
     c = c47sim.load([prog])
     c.s = [D(v) for v in (stack or [0, 0, 0, 0])]; c.pix = []; c.keys = list(keys); c.steps = 0
     c.frames = _Frames(c)
-    c.clock = D('2461338.0')                 # the calculator's clock (a JD): read by the standby check
     if tax is not None:
         c.reg['MHTAX'] = D(str(tax))
     if mem is not None:

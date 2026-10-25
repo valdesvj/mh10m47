@@ -8,7 +8,6 @@ REM a - b % = a - ab/100); MRC (once: recall, twice: clear), M+ and M- (they fin
 REM COST, SELL, MAR (margin on the selling price: two give the third); TAX+ and TAX- with the tax rate
 REM (pressed twice: the tax amount); RATE SET; E: overflow (the display shows the result / 10^10) or
 REM division by 0, only C or AC go on.
-REM After a standby (more than 30 s between two passes of the key wait) the key that wakes it ends the program.
 REM C47 keys: the digits, . and + - x / as they are; ENTER =; +/- +/-; <- (backspace) the Casio's >;
 REM F1-F6 the Casio's top row COST SELL MAR % TAX- TAX+; the second row of the C47 (under the soft keys)
 REM MRC M- M+ C AC RATE-SET; x<>y OFF (the end).
@@ -28,8 +27,7 @@ REM R45 the display's digits (N), R46 its decimals, R47 q, R48 the cell k (0 the
 REM with a digit (from the right), R50-R59 the digit
 REM shown in each cell (10 blank), R60-R69 the mark shown after each cell (1 point, 2 thousands),
 REM R70-R72 the glyph's words (left, middle, right columns), R73 a counter, R74 work, R75-R78 work,
-REM R79 10^10, R80 the point's word, R81 the thousands mark's word, R82 the clock's JD at the last key wait,
-REM R83 1 / 0 wait on / end (the standby check), R84 the AGRAPH word of LBL :RUN:,
+REM R79 10^10, R80 the point's word, R81 the thousands mark's word, R84 the AGRAPH word of LBL :RUN:,
 REM R85 the keys used ("/11/12/.../"), R86 the value of R45 and R46, R87-R89 the key shown inverted (x, row, height 1 or 2 key rows;
 REM 0 none), R90 23 ones, R91 52 ones (the inside of a key).
 REM Indicators (R35, R36): 1 M, 2 minus, 4 E, 8 COST, 16 SELL, 32 MAR, 64 TAX+, 128 TAX-, 256 TAX,
@@ -52,16 +50,10 @@ STO R.08
 XEQ :INIT:
 REM ---- keys: x<>y (42) the end; a key of R85 runs its label (XEQ IND 33); the others ignored ----
 DO
-  REM wait for a key: PAUSE 50, KEY? 33 (true: no key yet), as Elements 47; with no key LBL :WAKE: (the
-  REM standby check) sets R83 = 1 to wait on, 0 to end (R33 = 42, as x<>y); a key: R83 stays 0
+  REM wait for a key: PAUSE 50, KEY? 33 (true: no key yet), as Elements 47
   DO
-    0
-    STO 83
     PAUSE 50
     KEY? 33
-    XEQ :WAKE:
-    RCL 83
-    X≠0?
   WHILE
   ENDDO
   RCL 33
@@ -95,37 +87,6 @@ RCL R.08
 STO L
 RCLS R.00
 RCL R.09
-RTN
-REM ---- LBL :WAKE: the standby check: the calculator's clock (JD, R82 the last pass's); more than 30 s since
-REM the last pass: the calculator was in standby, and the key that woke it ends the program cleanly (R33 = 42),
-REM so it is left in its normal state (a program left waiting went back to standby at each press). R83 = 1 -
-REM (IP(gap / 30 s) not 0) ----
-LBL :WAKE:
-Date→ⅅ
-Time→ℸ
-ⅅℸ→J
-RCL 82
-X<>Y
-STO 82
-X<>Y
--
-86400
-×
-30
-÷
-IP
-X≠0?
-1
-1
-X<>Y
--
-STO 83
-1
-RCL 83
--
-42
-×
-STO 33
 RTN
 REM LBL :KEY: the key R33: no indicator of a key (R35), its label, then it is the key before (R34)
 LBL :KEY:
@@ -1415,11 +1376,6 @@ RTN
 REM ---- LBL :INIT: the start: MHTAX and MHMEM, the words, the screen (the Casio), all cleared ----
 LBL :INIT:
 WSIZE 64
-REM the clock now, for the standby check (LBL :WAKE:)
-Date→ⅅ
-Time→ℸ
-ⅅℸ→J
-STO 82
 0
 STO+ "MHTAX"
 STO+ "MHMEM"

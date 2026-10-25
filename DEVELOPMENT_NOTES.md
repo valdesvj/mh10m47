@@ -56,18 +56,6 @@
 - The screen's title was the maker's name and the model; now "DESK CALCULATOR ... 10 DIGITS" (python/layout.py
   TITLE): no maker's name or logo drawn on the screen. docs/ pictures made again.
 
-## Oct 24, 2026 - the standby check (Victor: a program waiting for a key goes to standby, then needs several
-## presses to come back)
-
-- Thought (not yet confirmed on the C47: extras STBY in the conversation counts the passes and the long ones):
-  the power-off timer runs from the last key, a PAUSE does not reset it, and the press that wakes the calculator
-  does not reach KEY?, so the next PAUSE sends it back to standby. Almanac 47 is left as it is (Victor).
-- LBL :WAKE: after KEY? with no key: the clock's JD (Date→ⅅ Time→ℸ ⅅℸ→J, as Zones 47) against the last pass's
-  (R82); more than 30 s: the program ends as with x<>y (R33 = 42), the key wait's loop on R83 (1 wait on, 0 end).
-  The same in Zones 47, Logic 47, Elements 47 and Watch 47. 99 of the 100 local labels.
-- Tests: a pass with no key and the clock 10 min on ends it (the stack back, the value in X, the screen cleared);
-  5 s on: it waits on. mh10msim sets a clock.
-
 ## To do
 
 1. Run on Victor's C47 (convert build/MH10M.txt with rejig); check the KEY? codes with KEYTEST (KT3).

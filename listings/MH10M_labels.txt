@@ -1,49 +1,48 @@
 MH10M local labels: name (programs_rem/MH10M.txt), number (build/MH10M.txt), what it does
 
-:WAKE:     17  the standby check: the calculator's clock (JD, R82 the last pass's); more than 30 s since
-:KEY:      18  the key R33: no indicator of a key (R35), its label, then it is the key before (R34)
-:DIG:      19  the digit X keyed: a new number (LBL :NEWE:) unless one is being keyed; at most 10 digits;
-:DECD:     20  
-:EVAL:     27  X = N / 10^decimals, negative when R29 = 1 (x (1 - 2 R29)); the display
-:NEWE:     28  a new number: N 0, no digit, no point, positive, 10^0, keyed, given
-:BKD:      29  
-:BKP:      30  the point off; when N is 0 no digit is left (X=0? STO 27: R27 = 0)
-:OPK:      31  the operation X (86-89, in R74): a number given and an operation pending: it is done first
-:OPSET:    32  
-:ACCX:     33  the first number = X
-:DOOP:     34  the operation pending R22 on the first number (R75) and X (R76): the result (LBL :RES:)
-:DZ:       35  
-:RES:      36  the result X: 10^10 or more: E (LBL :OVF:); cut to the display (LBL :TRUNC:) in R20;
-:OVF:      37  E, and X / 10^10 until it fits (the Casio shows the first digits of the result)
-:TRUNC:    38  X (R20, under 10^10) cut to 10 digits: 10^(10 - digits before the point) (R76: 10^9
-:EQOP:     39  K = the second number (for x the first: LBL :KACC:), its operation R23; done
-:KACC:     40  
-:EQK2:     42  X op K (x: K x X, the same)
-:EQ1:      44  the operation pending done (M+, M-, TAX, COST ...: they finish the calculation; no constan
-:PCT0:     46  
-:MCLR:     47  
-:MPM:      48  
-:MOVF:     49  
-:CLRE:     50  
-:AC0:      51  
-:RSET:     56  
-:TAXSH:    57  
-:CSM:      58  no number given and the key before one of the three: the value of t shown (LBL :CSMRC:);
-:CSMIN:    59  
-:CSM1:     60  
-:CSMI:     61  the indicator of t: 8 16 32 = 4t(t - 1) + 8
-:CSMRC:    66  
-:SHOW:     67  ======== the display ========
-:DSH:      68  
-:ENTD:     69  the number being keyed: its digits and decimals; R86 none (-1E20: no value is that)
-:TRSH:     70  X cut (LBL :TRUNC:) unless R45 and R46 are already those of X (R86 = X)
-:TK:       71  a thousands mark after cell k: k - decimals > 0 and a multiple of 3 (q not 0: a digit ther
-:CELL:     76  the digit R75 in cell k (R48): kept in R77's register, its words (LBL 00-10), GRMOD 1:
-:GAP:      77  the mark R76 after cell k: columns 1 and 4 the point (A), 2 and 3 the point and the mark (
-:RUN:      78  R73 columns of the word R84 from Y (row), X (column); X moves on
-:R16:      79  , LBL :R4: 16 and 4 columns of R84 without a loop (a loop takes 3 steps a column)
-:R4:       80  
-:INDS:     81  the indicators R74 (shown: R36): all cleared (GRMOD 2: their pixels off), then each
-:HL:       84  the key at column Z, row Y, X key rows high: the key shown before inverted again
-:HLX:      97  the inside of the key R87, R88, R89 inverted (GRMOD 3: XOR): 60 columns (3 x 16 + 3 x 4) o
-:INIT:     98  the start: MHTAX and MHMEM, the words, the screen (the Casio), all cleared
+:KEY:      17  the key R33: no indicator of a key (R35), its label, then it is the key before (R34)
+:DIG:      18  the digit X keyed: a new number (LBL :NEWE:) unless one is being keyed; at most 10 digits;
+:DECD:     19  
+:EVAL:     20  X = N / 10^decimals, negative when R29 = 1 (x (1 - 2 R29)); the display
+:NEWE:     27  a new number: N 0, no digit, no point, positive, 10^0, keyed, given
+:BKD:      28  
+:BKP:      29  the point off; when N is 0 no digit is left (X=0? STO 27: R27 = 0)
+:OPK:      30  the operation X (86-89, in R74): a number given and an operation pending: it is done first
+:OPSET:    31  
+:ACCX:     32  the first number = X
+:DOOP:     33  the operation pending R22 on the first number (R75) and X (R76): the result (LBL :RES:)
+:DZ:       34  
+:RES:      35  the result X: 10^10 or more: E (LBL :OVF:); cut to the display (LBL :TRUNC:) in R20;
+:OVF:      36  E, and X / 10^10 until it fits (the Casio shows the first digits of the result)
+:TRUNC:    37  X (R20, under 10^10) cut to 10 digits: 10^(10 - digits before the point) (R76: 10^9
+:EQOP:     38  K = the second number (for x the first: LBL :KACC:), its operation R23; done
+:KACC:     39  
+:EQK2:     40  X op K (x: K x X, the same)
+:EQ1:      42  the operation pending done (M+, M-, TAX, COST ...: they finish the calculation; no constan
+:PCT0:     44  
+:MCLR:     46  
+:MPM:      47  
+:MOVF:     48  
+:CLRE:     49  
+:AC0:      50  
+:RSET:     51  
+:TAXSH:    56  
+:CSM:      57  no number given and the key before one of the three: the value of t shown (LBL :CSMRC:);
+:CSMIN:    58  
+:CSM1:     59  
+:CSMI:     60  the indicator of t: 8 16 32 = 4t(t - 1) + 8
+:CSMRC:    61  
+:SHOW:     66  ======== the display ========
+:DSH:      67  
+:ENTD:     68  the number being keyed: its digits and decimals; R86 none (-1E20: no value is that)
+:TRSH:     69  X cut (LBL :TRUNC:) unless R45 and R46 are already those of X (R86 = X)
+:TK:       70  a thousands mark after cell k: k - decimals > 0 and a multiple of 3 (q not 0: a digit ther
+:CELL:     71  the digit R75 in cell k (R48): kept in R77's register, its words (LBL 00-10), GRMOD 1:
+:GAP:      76  the mark R76 after cell k: columns 1 and 4 the point (A), 2 and 3 the point and the mark (
+:RUN:      77  R73 columns of the word R84 from Y (row), X (column); X moves on
+:R16:      78  , LBL :R4: 16 and 4 columns of R84 without a loop (a loop takes 3 steps a column)
+:R4:       79  
+:INDS:     80  the indicators R74 (shown: R36): all cleared (GRMOD 2: their pixels off), then each
+:HL:       81  the key at column Z, row Y, X key rows high: the key shown before inverted again
+:HLX:      84  the inside of the key R87, R88, R89 inverted (GRMOD 3: XOR): 60 columns (3 x 16 + 3 x 4) o
+:INIT:     97  the start: MHTAX and MHMEM, the words, the screen (the Casio), all cleared

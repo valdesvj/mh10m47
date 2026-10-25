@@ -25,10 +25,6 @@ The Casio's top row (COST … TAX+) is on the **soft keys F1–F6**, its MRC M�
 | second row, keys 1–6 | MRC M− M+ C AC RATE SET |
 | x⇄y | OFF: the end |
 
-**Standby**: if the calculator goes to standby while MH10M waits for a key, the key that wakes it ends the
-program cleanly (more than 30 s between two passes of the key wait: the clock is read at each one), so the
-calculator is back in its normal state.
-
 At the end the screen is cleared, your stack and LASTx are as they were, and the display's value is put in X
 (the stack lifted, as after a calculation).
 
