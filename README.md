@@ -73,7 +73,8 @@ to undo.
 |---|---|
 | `programs_rem/MH10M.txt` | the commented source (STRUCT, named labels) — edit this one |
 | `programs/MH10M.txt`, `build/MH10M.txt` | the calculator program (to convert with rejig) |
-| `build/forum/MH10M.p47u` | the same program as a commented rejig source: an `@` header (Index, Author, Version, Source, Tested, Input, Output), the steps indented, the comments after `;` (rejig drops them: no memory); written by the build (`tools/build_forum.py`, from Logic 47), checked by `tests/test_forum.py` |
+| `build/forum/MH10M.p47u` | the file for the forum and the C47's PROGRAMS folder: the `@` metadata (Index, Author, Version, Source, Tested, Input, Output), how to use it in plain words (`tools/forum/MH10M.txt`), then the steps indented with the source's comments as `@` lines and the label names after `;` (rejig compiles neither: no memory, no REM step); written by the build (`tools/build_forum.py`, from Logic 47), checked by `tests/test_forum.py` |
+| `tools/build_p47.py` | on your computer with rejig: `build/p47/MH10M.p47` from the forum file (`--validate=r47`), checked byte for byte against the plain listing's |
 | `listings/` | numbered steps with comments, the local labels |
 | `python/layout.py` | the screen: the 7-segment glyphs, the LCD, the keypad, the indicators |
 | `tools/build_mh10m.py` | the build: the drawing steps from `layout.py`, the STRUCT numbers, the labels |

@@ -10,17 +10,41 @@
 @ Output:  1 / 3 = shows 0.333333333; x 3 = 0.999999999 (as the Casio); 1500 TAX+ at 8 % shows 1'620.,
 @ Output:  TAX+ again 120.; 1000 COST 25 MAR shows SELL 1'333.333333; at the end the value in X
 @
-@ MH-10M 47: the Casio MH-10M on the C47 / R47. Its 10-digit LCD (7-segment digits drawn with AGRAPH, the
-@ point, the thousands marks, the indicators M - E COST SELL MAR TAX+ TAX- TAX RATE SET) and its keypad drawn
-@ on the screen; the key pressed is shown inverted until the next one. Algebraic, left to right, results cut
-@ to the 10 digits shown; the constant of =; the Casio's %; MRC (twice clears), M+, M-; cost / selling price /
-@ margin (two give the third); tax with a rate set with RATE SET; E on overflow or / 0 (C or AC go on).
-@ The tax rate and the memory are kept between runs in the variables MHTAX and MHMEM.
-@ Your stack and LASTx are kept (STOS / RCLS in local registers); the value shown is put in X at the end
-@ (the stack lifted); the registers R20-R91 are cleared at the end.
-@ Needs a C47 / R47 firmware with ATEXT, GRFNT and the STRUCT commands (WSIZE 64).
-@ The comments after ';' say what each part does (rejig drops them: they take no memory).
+@ ---- What it is ----
+@ MH-10M 47 turns the C47 into a Casio MH-10M, the small desk calculator with cost, selling price, margin and tax
+@ keys. Its 10-digit display (7-segment digits, the decimal point, the thousands marks, the indicators) and its
+@ keypad are drawn on the screen; each key you press shows the Casio key it stands for, inverted. It calculates the
+@ way the Casio does: algebraic entry, left to right with no precedence (2 + 3 x 4 = gives 20), results cut (not
+@ rounded) to the 10 digits shown, the constant of =, the Casio's %, a memory, cost / sell / margin and tax.
 @
+@ ---- How to use it ----
+@ Load MH10M and press XEQ MH10M. Then use the C47's keys as the Casio's:
+@   0-9 .  + - x /   as they are                 ENTER   =
+@   +/-              change sign                 <-      the Casio's > (the last digit keyed off)
+@   F1 F2 F3         COST  SELL  MAR             F4 F5 F6   %  TAX-  TAX+
+@   the second row (the six keys under the soft keys): MRC  M-  M+  C  AC  RATE SET
+@   x<>y             OFF: the end; the value shown is put in X
+@ Examples: 1 / 3 = shows 0.333333333 and x 3 = then 0.999999999, as on the Casio. 1500 + 15 % gives 1725.
+@ COST, SELL and MAR (the margin on the selling price): key two of them, the third is worked out: 1000 COST 25 MAR
+@ shows the selling price 1333.333333. Tax: set the rate with RATE SET, the rate, RATE SET; then 1500 TAX+ at 8 %
+@ gives 1620 and TAX+ again shows the tax itself (120); TAX- takes the tax out. MRC recalls the memory, MRC twice
+@ clears it; M+ and M- finish the calculation first. E (an overflow or a division by 0): only C (go on with the
+@ value) and AC work. C clears the number being keyed; AC clears everything but the memory and the tax rate.
+@
+@ ---- What it changes on your calculator ----
+@ Your stack and LASTx are given back at the end, with the value shown pushed into X (as after a calculation).
+@ Registers R00-R19 are not touched; R20-R91 are used and cleared at the end. The memory and the tax rate are kept
+@ between runs in two variables, MHMEM and MHTAX (delete them to forget them). The screen is cleared at the end;
+@ GRMOD 0 and GRFNT 20 are set; WSIZE is set to 64.
+@
+@ ---- Programs and labels ----
+@ One program, MH10M, with one global label (MH10M). Every routine inside is a local label (LBL 00-10 the digit
+@ glyphs, 11-85 the keys by their KEY? codes, called with XEQ IND, 86-96 the operations), so nothing else is added
+@ to your program catalogue. It uses the STRUCT commands (IF / ELSE / ENDIF, DO / WHILE / ENDDO), ATEXT, GRFNT and
+@ AGRAPH of the C47 / R47 firmware. Some KEY? codes (ENTER, x<>y, +/-, <-, the operators, the second row) are not
+@ yet confirmed on a calculator: see the README.
+@
+@ ---- Technical notes (from the commented source) ----
 @ MH10M v0.1.0 - MH-10M 47: the Casio MH-10M desk calculator on the C47 / R47
 @ The 10-digit LCD (7-segment digits drawn with AGRAPH, the decimal point and the thousands marks) and
 @ the Casio's keypad drawn on the screen: the key pressed is shown inverted (XOR) until the next key.
@@ -67,13 +91,17 @@
 @
 
 LBL "MH10M"
-LocR 10                         ; the user's stack in the local registers: STOS R.00, LASTx in R.08; R.09 the value at the end
+@ the user's stack in the local registers: STOS R.00, LASTx in R.08; R.09 the value at the end
+LocR 10
 STOS R.00
 LASTx
 STO R.08
 XEQ 97                          ; -> :INIT:
-DO 01                           ; ---- keys: x<>y (42) the end; a key of R85 runs its label (XEQ IND 33); the others ignored ----
-  DO 02                         ; wait for a key: PAUSE 50, KEY? 33 (true: no key yet), as Elements 47
+@
+@ ---- keys: x<>y (42) the end; a key of R85 runs its label (XEQ IND 33); the others ignored ----
+DO 01
+@   wait for a key: PAUSE 50, KEY? 33 (true: no key yet), as Elements 47
+  DO 02
     PAUSE 50
     KEY? 33
   WHILE 02
@@ -82,7 +110,8 @@ DO 01                           ; ---- keys: x<>y (42) the end; a key of R85 run
   42
   X≠Y?
 WHILE 01
-  "/"                           ; "/k/" in the keys used R85 (αPOS: -1 when not there)
+@   "/k/" in the keys used R85 (αPOS: -1 when not there)
+  "/"
   STO 75
   RCL 33
   αIP 75
@@ -93,8 +122,11 @@ WHILE 01
   X≥0?
   XEQ 17                        ; -> :KEY:
 ENDDO 01
-RCL 20                          ; ---- x<>y: the end: the value in R.09, R20-R91 cleared, GRMOD 0, GRFNT 20, the screen; the user's
-STO R.09                        ; stack and LASTx back, the value in X ----
+@
+@ ---- x<>y: the end: the value in R.09, R20-R91 cleared, GRMOD 0, GRFNT 20, the screen; the user's
+@ stack and LASTx back, the value in X ----
+RCL 20
+STO R.09
 20.72
 R-CLR
 0
@@ -107,14 +139,16 @@ STO L
 RCLS R.00
 RCL R.09
 RTN
-LBL 17                          ; :KEY:  LBL :KEY: the key R33: no indicator of a key (R35), its label, then it is the key before (R34)
+@ LBL :KEY: the key R33: no indicator of a key (R35), its label, then it is the key before (R34)
+LBL 17                          ; :KEY:
 0
 STO 35
 XEQ IND 33
 RCL 33
 STO 34
 RTN
-LBL 00                          ; glyph of the digit 0: the words of its left, middle, right columns  ==== GLYPHS (written by tools/build_mh10m.py: LBL 00-10, the three words of each digit, SINT)
+@ ==== GLYPHS (written by tools/build_mh10m.py: LBL 00-10, the three words of each digit, SINT)
+LBL 00                          ; glyph of the digit 0: the words of its left, middle, right columns
 562941497702400
 SINT
 STO 70
@@ -235,8 +269,10 @@ STO 71
 SINT
 STO 72
 RTN
-LBL 52                          ; key 7 (KEY? 52): its Casio key inverted, then the digit  ======== the keys: each shows its key inverted (column, row, height: XEQ :HL:), then its work ========
-1                               ; ---- the digits: 7 8 9 / 4 5 6 / 1 2 3 / 0 (KEY? 52-54, 62-64, 72-74, 82) ----
+@ ======== the keys: each shows its key inverted (column, row, height: XEQ :HL:), then its work ========
+@ ---- the digits: 7 8 9 / 4 5 6 / 1 2 3 / 0 (KEY? 52-54, 62-64, 72-74, 82) ----
+LBL 52                          ; key 7 (KEY? 52): its Casio key inverted, then the digit
+1
 3
 1
 XEQ 81                          ; -> :HL:
@@ -305,8 +341,10 @@ LBL 82                          ; key 0 (KEY? 82): its Casio key inverted, then 
 XEQ 81                          ; -> :HL:
 0
 GTO 18                          ; -> :DIG:
-LBL 18                          ; :DIG:  LBL :DIG: the digit X keyed: a new number (LBL :NEWE:) unless one is being keyed; at most 10 digits;
-STO 75                          ; N = 10N + d; after the point one decimal more (LBL :DECD:), before it one digit more unless N is 0
+@ LBL :DIG: the digit X keyed: a new number (LBL :NEWE:) unless one is being keyed; at most 10 digits;
+@ N = 10N + d; after the point one decimal more (LBL :DECD:), before it one digit more unless N is 0
+LBL 18                          ; :DIG:
+STO 75
 RCL 30
 X≠0?
 RTN
@@ -326,7 +364,8 @@ STO 26
 RCL 28
 X≥0?
 GTO 19                          ; -> :DECD:
-RCL 26                          ; N not 0: one digit more (X≠0? 1: the 1 added, else N = 0 added)
+@ N not 0: one digit more (X≠0? 1: the 1 added, else N = 0 added)
+RCL 26
 X≠0?
 1
 STO+ 27
@@ -339,7 +378,8 @@ RCL 44
 10
 ×
 STO 44
-LBL 20                          ; :EVAL:  LBL :EVAL: X = N / 10^decimals, negative when R29 = 1 (x (1 - 2 R29)); the display
+@ LBL :EVAL: X = N / 10^decimals, negative when R29 = 1 (x (1 - 2 R29)); the display
+LBL 20                          ; :EVAL:
 RCL 26
 RCL 44
 ÷
@@ -351,7 +391,8 @@ RCL 29
 ×
 STO 20
 GTO 66                          ; -> :SHOW:
-LBL 27                          ; :NEWE:  LBL :NEWE: a new number: N 0, no digit, no point, positive, 10^0, keyed, given
+@ LBL :NEWE: a new number: N 0, no digit, no point, positive, 10^0, keyed, given
+LBL 27                          ; :NEWE:
 0
 STO 26
 STO 27
@@ -363,7 +404,9 @@ STO 44
 STO 25
 STO 43
 RTN
-LBL 83                          ; KEY? 83: . (the C47 .)  ---- . (83): the point (once); 0. counts one digit ----
+@
+@ ---- . (83): the point (once); 0. counts one digit ----
+LBL 83                          ; KEY? 83: . (the C47 .)
 2
 0
 1
@@ -379,14 +422,18 @@ X≥0?
 RTN
 0
 STO 28
-1                               ; the digits at least 1 (X<Y? X<>Y: the larger of R27 and 1)
+@ the digits at least 1 (X<Y? X<>Y: the larger of R27 and 1)
+1
 RCL 27
 X<Y?
 X<>Y
 STO 27
 GTO 20                          ; -> :EVAL:
-LBL 45                          ; KEY? 45: the Casio's > (<-: the last digit off)  ---- <- (45): the Casio's > key, the last digit keyed off: a decimal (LBL :BKD:), the point
-0                               ; (LBL :BKP:) or a digit before the point ----
+@
+@ ---- <- (45): the Casio's > key, the last digit keyed off: a decimal (LBL :BKD:), the point
+@ (LBL :BKP:) or a digit before the point ----
+LBL 45                          ; KEY? 45: the Casio's > (<-: the last digit off)
+0
 2
 1
 XEQ 81                          ; -> :HL:
@@ -426,14 +473,17 @@ RCL 44
 ÷
 STO 44
 GTO 20                          ; -> :EVAL:
-LBL 29                          ; :BKP:  the point off; when N is 0 no digit is left (X=0? STO 27: R27 = 0)
+@ the point off; when N is 0 no digit is left (X=0? STO 27: R27 = 0)
+LBL 29                          ; :BKP:
 -1
 STO 28
 RCL 26
 X=0?
 STO 27
 GTO 20                          ; -> :EVAL:
-LBL 43                          ; KEY? 43: +/- (+/-)  ---- +/- (43): the sign of X (and of the number being keyed: R29) ----
+@
+@ ---- +/- (43): the sign of X (and of the number being keyed: R29) ----
+LBL 43                          ; KEY? 43: +/- (+/-)
 0
 3
 1
@@ -449,7 +499,9 @@ RCL 29
 -
 STO 29
 GTO 66                          ; -> :SHOW:
-LBL 85                          ; KEY? 85: + (the C47 +)  ---- + - x / (85 75 65 55): the operation 86-89 (LBL :OPK:) ----
+@
+@ ---- + - x / (85 75 65 55): the operation 86-89 (LBL :OPK:) ----
+LBL 85                          ; KEY? 85: + (the C47 +)
 4
 0
 2
@@ -477,9 +529,12 @@ LBL 55                          ; KEY? 55: / (the C47 /)
 XEQ 81                          ; -> :HL:
 89
 GTO 30                          ; -> :OPK:
-LBL 30                          ; :OPK:  LBL :OPK: the operation X (86-89, in R74): a number given and an operation pending: it is done first
-STO 74                          ; (left to right, as the Casio: 2 + 3 x 4 = 20); no operation pending: the first number is X; then the
-RCL 30                          ; new operation is pending (a second operation key only replaces it)
+@ LBL :OPK: the operation X (86-89, in R74): a number given and an operation pending: it is done first
+@ (left to right, as the Casio: 2 + 3 x 4 = 20); no operation pending: the first number is X; then the
+@ new operation is pending (a second operation key only replaces it)
+LBL 30                          ; :OPK:
+STO 74
+RCL 30
 RCL 38
 +
 X≠0?
@@ -500,12 +555,15 @@ STO 22
 STO 25
 STO 43
 GTO 66                          ; -> :SHOW:
-LBL 32                          ; :ACCX:  LBL :ACCX: the first number = X
+@ LBL :ACCX: the first number = X
+LBL 32                          ; :ACCX:
 RCL 20
 STO 21
 RTN
-LBL 33                          ; :DOOP:  LBL :DOOP: the operation pending R22 on the first number (R75) and X (R76): the result (LBL :RES:)
-RCL 21                          ; is X and the first number
+@ LBL :DOOP: the operation pending R22 on the first number (R75) and X (R76): the result (LBL :RES:)
+@ is X and the first number
+LBL 33                          ; :DOOP:
+RCL 21
 STO 75
 RCL 20
 STO 76
@@ -514,7 +572,9 @@ XEQ 35                          ; -> :RES:
 RCL 20
 STO 21
 RTN
-LBL 86                          ; operation 86: +: a + b (R75 a, R76 b; R39-R41 c s m)  ---- the operations: R75 a, R76 b -> X; / by 0: E (LBL :DZ:, the result 0) ----
+@
+@ ---- the operations: R75 a, R76 b -> X; / by 0: E (LBL :DZ:, the result 0) ----
+LBL 86                          ; operation 86: +: a + b (R75 a, R76 b; R39-R41 c s m)
 RCL 75
 RCL 76
 +
@@ -542,8 +602,11 @@ LBL 34                          ; :DZ:
 STO 30
 0
 RTN
-LBL 90                          ; operation 90: + %: a + ab/100 (R75 a, R76 b; R39-R41 c s m)  ---- the % of each operation (LBL 90-93 = the operation + 4): a + b % = a + ab/100, a - b % =
-RCL 75                          ; a - ab/100, a x b % = ab/100, a / b % = 100a/b ----
+@
+@ ---- the % of each operation (LBL 90-93 = the operation + 4): a + b % = a + ab/100, a - b % =
+@ a - ab/100, a x b % = ab/100, a / b % = 100a/b ----
+LBL 90                          ; operation 90: + %: a + ab/100 (R75 a, R76 b; R39-R41 c s m)
+RCL 75
 RCL 76
 ×
 100
@@ -578,8 +641,11 @@ X<>Y
 100
 ×
 RTN
-LBL 35                          ; :RES:  ---- LBL :RES: the result X: 10^10 or more: E (LBL :OVF:); cut to the display (LBL :TRUNC:) in R20;
-STO 20                          ; no number keyed or given ----
+@
+@ ---- LBL :RES: the result X: 10^10 or more: E (LBL :OVF:); cut to the display (LBL :TRUNC:) in R20;
+@ no number keyed or given ----
+LBL 35                          ; :RES:
+STO 20
 ABS
 RCL 79
 X≤Y?
@@ -589,7 +655,8 @@ XEQ 37                          ; -> :TRUNC:
 STO 25
 STO 43
 RTN
-LBL 36                          ; :OVF:  LBL :OVF: E, and X / 10^10 until it fits (the Casio shows the first digits of the result)
+@ LBL :OVF: E, and X / 10^10 until it fits (the Casio shows the first digits of the result)
+LBL 36                          ; :OVF:
 1
 STO 30
 DO 03
@@ -603,10 +670,15 @@ DO 03
 WHILE 03
 ENDDO 03
 RTN
-LBL 37                          ; :TRUNC:  ---- LBL :TRUNC: X (R20, under 10^10) cut to 10 digits: 10^(10 - digits before the point) (R76: 10^9
-RCL 20                          ; for one digit, / 10 for each digit more), |X| = IP(|X| R76) / R76; then its decimals R46 and N = the
-ABS                             ; digits as an integer (R45); R20 = N / 10^decimals with the sign of X (x (1 - 2 negative)), also in R86:
-STO 47                          ; R45 and R46 are those of R86 (LBL :SHOW: does not cut it again) ----
+@
+@ ---- LBL :TRUNC: X (R20, under 10^10) cut to 10 digits: 10^(10 - digits before the point) (R76: 10^9
+@ for one digit, / 10 for each digit more), |X| = IP(|X| R76) / R76; then its decimals R46 and N = the
+@ digits as an integer (R45); R20 = N / 10^decimals with the sign of X (x (1 - 2 negative)), also in R86:
+@ R45 and R46 are those of R86 (LBL :SHOW: does not cut it again) ----
+LBL 37                          ; :TRUNC:
+RCL 20
+ABS
+STO 47
 1000000000
 STO 76
 9
@@ -635,7 +707,8 @@ IP
 RCL 76
 ÷
 STO 47
-0                               ; the decimals it has (R46: 0 up while |X| 10^d has a fraction), p = 10^d (R76), N = |X| p
+@ the decimals it has (R46: 0 up while |X| 10^d has a fraction), p = 10^d (R76), N = |X| p
+0
 STO 46
 1
 STO 76
@@ -655,7 +728,8 @@ RCL 47
 RCL 76
 ×
 STO 45
-RCL 20                          ; the sign: |X| - X is 2|X| when X is negative (X≠0? 1: 1), else 0; 1 - 2 negative
+@ the sign: |X| - X is 2|X| when X is negative (X≠0? 1: 1), else 0; 1 - 2 negative
+RCL 20
 ABS
 RCL 20
 -
@@ -673,8 +747,11 @@ RCL 76
 STO 20
 STO 86
 RTN
-LBL 41                          ; KEY? 41: = (ENTER)  ---- = (41): in RATE SET the rate (LBL :RSET:); an operation pending: done, and it is the constant
-3                               ; (LBL :EQOP:); else the constant on X (LBL :EQK2:) ----
+@
+@ ---- = (41): in RATE SET the rate (LBL :RSET:); an operation pending: done, and it is the constant
+@ (LBL :EQOP:); else the constant on X (LBL :EQK2:) ----
+LBL 41                          ; KEY? 41: = (ENTER)
+3
 0
 1
 XEQ 81                          ; -> :HL:
@@ -694,7 +771,8 @@ GTO 40                          ; -> :EQK2:
 STO 25
 STO 43
 GTO 66                          ; -> :SHOW:
-LBL 38                          ; :EQOP:  LBL :EQOP: K = the second number (for x the first: LBL :KACC:), its operation R23; done
+@ LBL :EQOP: K = the second number (for x the first: LBL :KACC:), its operation R23; done
+LBL 38                          ; :EQOP:
 RCL 20
 STO 24
 88
@@ -711,7 +789,8 @@ LBL 39                          ; :KACC:
 RCL 21
 STO 24
 RTN
-LBL 40                          ; :EQK2:  LBL :EQK2: X op K (x: K x X, the same)
+@ LBL :EQK2: X op K (x: K x X, the same)
+LBL 40                          ; :EQK2:
 RCL 20
 STO 75
 RCL 24
@@ -721,7 +800,8 @@ XEQ 35                          ; -> :RES:
 RCL 20
 STO 21
 GTO 66                          ; -> :SHOW:
-LBL 42                          ; :EQ1:  LBL :EQ1: the operation pending done (M+, M-, TAX, COST ...: they finish the calculation; no constant)
+@ LBL :EQ1: the operation pending done (M+, M-, TAX, COST ...: they finish the calculation; no constant)
+LBL 42                          ; :EQ1:
 RCL 22
 X=0?
 RTN
@@ -729,7 +809,9 @@ XEQ 33                          ; -> :DOOP:
 0
 STO 22
 RTN
-LBL 14                          ; KEY? 14: % (F4)  ---- % (14, F4): with an operation pending its % (LBL 90-93), else X / 100 ----
+@
+@ ---- % (14, F4): with an operation pending its % (LBL 90-93), else X / 100 ----
+LBL 14                          ; KEY? 14: % (F4)
 3
 4
 1
@@ -763,7 +845,9 @@ RCL 20
 ÷
 XEQ 35                          ; -> :RES:
 GTO 66                          ; -> :SHOW:
-LBL 21                          ; KEY? 21: MRC (2nd row 1)  ---- MRC (21): the memory to X (given); twice: the memory cleared (the key before 0 again) ----
+@
+@ ---- MRC (21): the memory to X (given); twice: the memory cleared (the key before 0 again) ----
+LBL 21                          ; KEY? 21: MRC (2nd row 1)
 5
 2
 1
@@ -790,8 +874,11 @@ STO 31
 STO "MHMEM"
 STO 33
 GTO 66                          ; -> :SHOW:
-LBL 22                          ; KEY? 22: M- (2nd row 2)  ---- M- (22), M+ (23): the calculation finished, then the memory -/+ X, cut to 10 digits; 10^10 or
-5                               ; more: E (LBL :MOVF:, the memory as it was) ----
+@
+@ ---- M- (22), M+ (23): the calculation finished, then the memory -/+ X, cut to 10 digits; 10^10 or
+@ more: E (LBL :MOVF:, the memory as it was) ----
+LBL 22                          ; KEY? 22: M- (2nd row 2)
+5
 1
 1
 XEQ 81                          ; -> :HL:
@@ -842,7 +929,9 @@ STO 20
 1
 STO 30
 GTO 66                          ; -> :SHOW:
-LBL 24                          ; KEY? 24: C (2nd row 4)  ---- C (24): the number keyed cleared (the operation stays); after E: E off, the value kept ----
+@
+@ ---- C (24): the number keyed cleared (the operation stays); after E: E off, the value kept ----
+LBL 24                          ; KEY? 24: C (2nd row 4)
 0
 1
 1
@@ -864,7 +953,9 @@ STO 43
 RCL 20
 STO 21
 GTO 66                          ; -> :SHOW:
-LBL 25                          ; KEY? 25: AC (2nd row 5)  ---- AC (25): all cleared but the memory and the tax rate ----
+@
+@ ---- AC (25): all cleared but the memory and the tax rate ----
+LBL 25                          ; KEY? 25: AC (2nd row 5)
 0
 0
 1
@@ -890,8 +981,11 @@ STO 43
 -1
 STO 28
 RTN
-LBL 26                          ; KEY? 26: RATE SET (2nd row 6)  ---- RATE SET (26, the % key's second function): the rate shown (RATE SET), key it, then RATE SET,
-3                               ; = or TAX+ to store it (LBL :RSET:, kept in MHTAX) ----
+@
+@ ---- RATE SET (26, the % key's second function): the rate shown (RATE SET), key it, then RATE SET,
+@ = or TAX+ to store it (LBL :RSET:, kept in MHTAX) ----
+LBL 26                          ; KEY? 26: RATE SET (2nd row 6)
+3
 4
 1
 XEQ 81                          ; -> :HL:
@@ -923,7 +1017,9 @@ STO 43
 1024
 STO 35
 GTO 66                          ; -> :SHOW:
-LBL 16                          ; KEY? 16: TAX+ (F6)  ---- TAX+ (16, F6): X + its tax (the tax in R37, TAX+); pressed again: the tax (LBL :TAXSH:) ----
+@
+@ ---- TAX+ (16, F6): X + its tax (the tax in R37, TAX+); pressed again: the tax (LBL :TAXSH:) ----
+LBL 16                          ; KEY? 16: TAX+ (F6)
 5
 4
 1
@@ -966,7 +1062,9 @@ STO 35
 STO 25
 STO 43
 GTO 66                          ; -> :SHOW:
-LBL 15                          ; KEY? 15: TAX- (F5)  ---- TAX- (15, F5): X without its tax (100X / (100 + rate)), the tax X - that (TAX-); again: the tax ----
+@
+@ ---- TAX- (15, F5): X without its tax (100X / (100 + rate)), the tax X - that (TAX-); again: the tax ----
+LBL 15                          ; KEY? 15: TAX- (F5)
 4
 4
 1
@@ -1000,7 +1098,9 @@ STO 37
 128
 STO 35
 GTO 66                          ; -> :SHOW:
-LBL 11                          ; KEY? 11: COST (F1)  ---- COST (11, F1), SELL (12, F2), MAR (13, F3): LBL :CSM: with the kind t = 1, 2, 3 ----
+@
+@ ---- COST (11, F1), SELL (12, F2), MAR (13, F3): LBL :CSM: with the kind t = 1, 2, 3 ----
+LBL 11                          ; KEY? 11: COST (F1)
 0
 4
 1
@@ -1021,9 +1121,12 @@ LBL 13                          ; KEY? 13: MAR (F3)
 XEQ 81                          ; -> :HL:
 3
 GTO 57                          ; -> :CSM:
-LBL 57                          ; :CSM:  LBL :CSM: no number given and the key before one of the three: the value of t shown (LBL :CSMRC:);
-STO 74                          ; else X is the value of t (R38 + t), the calculation finished first; the second of two kinds: the
-RCL 30                          ; third u = 6 - first - t worked out (LBL 93 + u) and shown, else t is the first (R42)
+@ LBL :CSM: no number given and the key before one of the three: the value of t shown (LBL :CSMRC:);
+@ else X is the value of t (R38 + t), the calculation finished first; the second of two kinds: the
+@ third u = 6 - first - t worked out (LBL 93 + u) and shown, else t is the first (R42)
+LBL 57                          ; :CSM:
+STO 74
+RCL 30
 RCL 38
 +
 X≠0?
@@ -1031,7 +1134,8 @@ RTN
 RCL 43
 X≠0?
 GTO 58                          ; -> :CSMIN:
-RCL 34                          ; the key before 11-13: |k - 12| ≤ 1
+@ the key before 11-13: |k - 12| ≤ 1
+RCL 34
 12
 -
 ABS
@@ -1081,7 +1185,8 @@ STO 42
 0
 STO 25
 STO 43
-LBL 60                          ; :CSMI:  LBL :CSMI: the indicator of t: 8 16 32 = 4t(t - 1) + 8
+@ LBL :CSMI: the indicator of t: 8 16 32 = 4t(t - 1) + 8
+LBL 60                          ; :CSMI:
 RCL 74
 1
 -
@@ -1104,8 +1209,11 @@ STO 20
 STO 25
 STO 43
 GTO 60                          ; -> :CSMI:
-LBL 94                          ; operation 94: the cost: s (100 - m) / 100 (R75 a, R76 b; R39-R41 c s m)  ---- cost c = s (100 - m) / 100, selling price s = 100c / (100 - m), margin m = 100 (s - c) / s
-RCL 40                          ; (R39 c, R40 s, R41 m; LBL 94-96) ----
+@
+@ ---- cost c = s (100 - m) / 100, selling price s = 100c / (100 - m), margin m = 100 (s - c) / s
+@ (R39 c, R40 s, R41 m; LBL 94-96) ----
+LBL 94                          ; operation 94: the cost: s (100 - m) / 100 (R75 a, R76 b; R39-R41 c s m)
+RCL 40
 100
 RCL 41
 -
@@ -1136,20 +1244,28 @@ RCL 40
 100
 ×
 RTN
-LBL 66                          ; :SHOW:  ======== the display ========
-RCL 25                          ; ---- LBL :SHOW: the digits: the number being keyed (R26, R28) or X cut (LBL :TRUNC:); each cell k
-X≠0?                            ; from the right: its digit (LBL :DSH:: q not 0, or k not past the decimals) or blank (10); the mark
-XEQ 68                          ; -> :ENTD:  after it: 1 the point (k = decimals), + 2 a thousands mark (LBL :TK:); a cell or mark drawn only when
-RCL 25                          ; it changes (R50-R69); then the indicators (R74) when they change (LBL :INDS:) ----
+@ ======== the display ========
+@ ---- LBL :SHOW: the digits: the number being keyed (R26, R28) or X cut (LBL :TRUNC:); each cell k
+@ from the right: its digit (LBL :DSH:: q not 0, or k not past the decimals) or blank (10); the mark
+@ after it: 1 the point (k = decimals), + 2 a thousands mark (LBL :TK:); a cell or mark drawn only when
+@ it changes (R50-R69); then the indicators (R74) when they change (LBL :INDS:) ----
+LBL 66                          ; :SHOW:
+RCL 25
+X≠0?
+XEQ 68                          ; -> :ENTD:
+RCL 25
 X=0?
 XEQ 69                          ; -> :TRSH:
-0                               ; the decimals at least 0 (no point keyed: the point after the last digit, as the Casio)
+@ the decimals at least 0 (no point keyed: the point after the last digit, as the Casio)
+0
 RCL 46
 X<0?
 X<>Y
 STO 46
-RCL 46                          ; the cells to look at: m = the larger of decimals + 1 and the cells with a digit last time (R49), R74;
-1                               ; R49 0 again (LBL :DSH: sets it)
+@ the cells to look at: m = the larger of decimals + 1 and the cells with a digit last time (R49), R74;
+@ R49 0 again (LBL :DSH: sets it)
+RCL 46
+1
 +
 RCL 49
 X<Y?
@@ -1171,7 +1287,8 @@ DO 06
   RCL 48
   X≤Y?
   XEQ 67                        ; -> :DSH:
-  RCL 48                        ; the point: 1 - (|k - decimals| not 0)
+@   the point: 1 - (|k - decimals| not 0)
+  RCL 48
   RCL 46
   -
   ABS
@@ -1207,7 +1324,8 @@ DO 06
   STO 47
   1
   STO+ 48
-  0                             ; on while q is not 0 or k < m: q + (the larger of m - k and 0) > 0
+@   on while q is not 0 or k < m: q + (the larger of m - k and 0) > 0
+  0
   RCL 74
   RCL 48
   -
@@ -1218,7 +1336,8 @@ DO 06
   X>0?
 WHILE 06
 ENDDO 06
-RCL 35                          ; the indicators: R35 + M (memory not 0) + minus + E + RATE SET
+@ the indicators: R35 + M (memory not 0) + minus + E + RATE SET
+RCL 35
 STO 74
 RCL 31
 X≠0?
@@ -1254,7 +1373,8 @@ RCL 48
 +
 STO 49
 RTN
-LBL 68                          ; :ENTD:  LBL :ENTD: the number being keyed: its digits and decimals; R86 none (-1E20: no value is that)
+@ LBL :ENTD: the number being keyed: its digits and decimals; R86 none (-1E20: no value is that)
+LBL 68                          ; :ENTD:
 RCL 26
 STO 45
 RCL 28
@@ -1262,13 +1382,15 @@ STO 46
 -1E20
 STO 86
 RTN
-LBL 69                          ; :TRSH:  LBL :TRSH: X cut (LBL :TRUNC:) unless R45 and R46 are already those of X (R86 = X)
+@ LBL :TRSH: X cut (LBL :TRUNC:) unless R45 and R46 are already those of X (R86 = X)
+LBL 69                          ; :TRSH:
 RCL 20
 RCL 86
 X≠Y?
 GTO 37                          ; -> :TRUNC:
 RTN
-LBL 70                          ; :TK:  LBL :TK: a thousands mark after cell k: k - decimals > 0 and a multiple of 3 (q not 0: a digit there)
+@ LBL :TK: a thousands mark after cell k: k - decimals > 0 and a multiple of 3 (q not 0: a digit there)
+LBL 70                          ; :TK:
 RCL 48
 RCL 46
 -
@@ -1281,8 +1403,10 @@ RTN
 2
 STO+ 76
 RTN
-LBL 71                          ; :CELL:  LBL :CELL: the digit R75 in cell k (R48): kept in R77's register, its words (LBL 00-10), GRMOD 1:
-RCL 75                          ; 4, 16 and 4 columns written as they are (64 rows from 145; LBL :R4:, LBL :R16:)
+@ LBL :CELL: the digit R75 in cell k (R48): kept in R77's register, its words (LBL 00-10), GRMOD 1:
+@ 4, 16 and 4 columns written as they are (64 rows from 145; LBL :R4:, LBL :R16:)
+LBL 71                          ; :CELL:
+RCL 75
 STO IND 77
 XEQ IND 75
 1
@@ -1306,7 +1430,8 @@ STO 84
 DROP
 XEQ 79                          ; -> :R4:
 RTN
-LBL 76                          ; :GAP:  LBL :GAP: the mark R76 after cell k: columns 1 and 4 the point (A), 2 and 3 the point and the mark (B)
+@ LBL :GAP: the mark R76 after cell k: columns 1 and 4 the point (A), 2 and 3 the point and the mark (B)
+LBL 76                          ; :GAP:
 RCL 76
 STO IND 78
 RCL 76
@@ -1343,14 +1468,16 @@ AGRAPH 75
 AGRAPH 75
 AGRAPH 77
 RTN
-LBL 77                          ; :RUN:  LBL :RUN: R73 columns of the word R84 from Y (row), X (column); X moves on
+@ LBL :RUN: R73 columns of the word R84 from Y (row), X (column); X moves on
+LBL 77                          ; :RUN:
 DO 07
   AGRAPH 84
   DSE 73
 WHILE 07
 ENDDO 07
 RTN
-LBL 78                          ; :R16:  LBL :R16:, LBL :R4: 16 and 4 columns of R84 without a loop (a loop takes 3 steps a column)
+@ LBL :R16:, LBL :R4: 16 and 4 columns of R84 without a loop (a loop takes 3 steps a column)
+LBL 78                          ; :R16:
 AGRAPH 84
 AGRAPH 84
 AGRAPH 84
@@ -1369,14 +1496,18 @@ AGRAPH 84
 AGRAPH 84
 AGRAPH 84
 RTN
-LBL 80                          ; :INDS:  ---- LBL :INDS: the indicators R74 (shown: R36): all cleared (GRMOD 2: their pixels off), then each
-RCL 74                          ; drawn in GRMOD 2 - 2 x its bit (0: drawn, 2: nothing) ----
+@
+@ ---- LBL :INDS: the indicators R74 (shown: R36): all cleared (GRMOD 2: their pixels off), then each
+@ drawn in GRMOD 2 - 2 x its bit (0: drawn, 2: nothing) ----
+LBL 80                          ; :INDS:
+RCL 74
 STO 36
 21
 GRFNT
 2
 GRMOD
-"M"                             ; ==== INDOFF (written by the build: every indicator's text at its place)
+@ ==== INDOFF (written by the build: every indicator's text at its place)
+"M"
 210
 8
 ATEXT Z
@@ -1420,7 +1551,8 @@ ATEXT Z
 210
 338
 ATEXT Z
-RCL 74                          ; ==== INDON (written by the build: each indicator with GRMOD from its bit)
+@ ==== INDON (written by the build: each indicator with GRMOD from its bit)
+RCL 74
 1
 ÷
 IP
@@ -1588,8 +1720,11 @@ ATEXT Z
 0
 GRMOD
 RTN
-LBL 81                          ; :HL:  ---- LBL :HL: the key at column Z, row Y, X key rows high: the key shown before inverted again
-STO 76                          ; (LBL :HLX:: back), then this one (R87 x, R88 row, R89 the height) ----
+@
+@ ---- LBL :HL: the key at column Z, row Y, X key rows high: the key shown before inverted again
+@ (LBL :HLX:: back), then this one (R87 x, R88 row, R89 the height) ----
+LBL 81                          ; :HL:
+STO 76
 R↓
 29
 ×
@@ -1611,8 +1746,10 @@ RCL 78
 STO 87
 XEQ 84                          ; -> :HLX:
 RTN
-LBL 84                          ; :HLX:  LBL :HLX: the inside of the key R87, R88, R89 inverted (GRMOD 3: XOR): 60 columns (3 x 16 + 3 x 4) of R90 (23 ones)
-RCL 89                          ; or R91 (52 ones, the + key) from the row + 1; none when R89 = 0
+@ LBL :HLX: the inside of the key R87, R88, R89 inverted (GRMOD 3: XOR): 60 columns (3 x 16 + 3 x 4) of R90 (23 ones)
+@ or R91 (52 ones, the + key) from the row + 1; none when R89 = 0
+LBL 84                          ; :HLX:
+RCL 89
 X=0?
 RTN
 89
@@ -1638,7 +1775,9 @@ XEQ 79                          ; -> :R4:
 0
 GRMOD
 RTN
-LBL 97                          ; :INIT:  ---- LBL :INIT: the start: MHTAX and MHMEM, the words, the screen (the Casio), all cleared ----
+@
+@ ---- LBL :INIT: the start: MHTAX and MHMEM, the words, the screen (the Casio), all cleared ----
+LBL 97                          ; :INIT:
 WSIZE 64
 0
 STO+ "MHTAX"
@@ -1649,7 +1788,8 @@ RCL "MHMEM"
 STO 31
 10000000000
 STO 79
-960                             ; ==== WORDS (written by the build: R80 the point, R81 the thousands mark, R90 23 ones, R91 52 ones)
+@ ==== WORDS (written by the build: R80 the point, R81 the thousands mark, R90 23 ones, R91 52 ones)
+960
 STO 80
 17996806323437568
 STO 81
@@ -1659,7 +1799,8 @@ STO 90
 STO 91
 "/11/12/13/14/15/16/21/22/23/24/25/26/41/43/45/52/53/54/55/62/63/64/65/72/73/74/75/82/83/85/"
 STO 85
--1                              ; nothing shown yet (-1): every cell, mark and indicator drawn the first time; no key inverted
+@ nothing shown yet (-1): every cell, mark and indicator drawn the first time; no key inverted
+-1
 STO 36
 STO 50
 STO 51
@@ -1683,14 +1824,16 @@ STO 68
 STO 69
 0
 STO 89
-10                              ; all ten cells looked at the first time; R45, R46 of no value
+@ all ten cells looked at the first time; R45, R46 of no value
+10
 STO 49
 -1E20
 STO 86
 CLLCD
 0
 GRMOD
-10                              ; ==== STATIC (written by the build: the title, the LCD frame, the keys and their names)
+@ ==== STATIC (written by the build: the title, the LCD frame, the keys and their names)
+10
 GRFNT
 "DESK CALCULATOR"
 232

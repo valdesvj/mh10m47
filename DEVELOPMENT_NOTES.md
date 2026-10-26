@@ -61,3 +61,11 @@
 1. Run on Victor's C47 (convert build/MH10M.txt with rejig); check the KEY? codes with KEYTEST (KT3).
 2. Ideas: a GT (grand total) key as on other Casio models; the key highlight only while the key is held, if
    the C47 can tell.
+
+## Oct 26, 2026 - the forum file for new users (branch claude/mh10m47-forum)
+
+- The forum asked contributors for plain-English instructions in the .p47u ('@' lines, not '#': rejig makes a '#'
+  line a REM step) and local labels. build_forum.py (as Logic 47's): the '@' metadata, then tools/forum/MH10M.txt
+  (What it is, How to use it, What it changes on your calculator, Programs and labels), then the source's header as
+  technical notes; the comment blocks as whole '@' lines before their steps, label and key notes after ';'.
+  tools/build_p47.py (with rejig on Victor's computer): build/p47/MH10M.p47, checked against the plain listing's.
